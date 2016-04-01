@@ -1,5 +1,6 @@
 {
   "name": "webstronauts/draft-php",
+  "description": "A php implementation of Facebook's Draft.js library",
   "authors": [
     {
       "name": "Robin van der Vleuten",
