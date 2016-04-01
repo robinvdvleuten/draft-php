@@ -1,6 +1,6 @@
 # Draft.php
 
-A simple library to handle the content state of Draft.js in the backend.
+A simple library to handle the content state of [Draft.js](https://github.com/facebook/draft-js) in the backend.
 
 [![Build Status](https://travis-ci.org/webstronauts/draft-php.svg?branch=master)](https://travis-ci.org/webstronauts/draft-php)
 
@@ -17,3 +17,7 @@ $contentState = ContentState::createFromBlockArray($contentBlocks);
 
 var_dump($contentState);
 ```
+
+## Inspiration
+
+Many thanks to the [Draft.js](https://github.com/facebook/draft-js) team for the initial inspiration that became the groundworks for the library.
