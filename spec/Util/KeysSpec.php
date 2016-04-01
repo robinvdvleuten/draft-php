@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Fast Diff library.
+ * This file is part of the Draft.php library.
  *
  * (c) Webstronauts <contact@webstronauts.co>
  *
@@ -9,17 +9,19 @@
  * file that was distributed with this source code.
  */
 
-namespace spec\Draft;
+namespace spec\Draft\Util;
 
 use PhpSpec\ObjectBehavior;
 
 /**
  * @author Robin van der Vleuten <robin@webstronauts.co>
  */
-class DraftSpec extends ObjectBehavior
+class KeysSpec extends ObjectBehavior
 {
-    public function it_is_initializable()
+    public function it_generates_a_random_key()
     {
-        $this->shouldHaveType('Draft\Draft');
+        $randomKey = $this::generateRandomKey()->shouldBeString();
+
+        $this::generateRandomKey()->shouldNotReturn($randomKey);
     }
 }

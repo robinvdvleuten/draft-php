@@ -6,7 +6,7 @@ use Symfony\CS\Fixer\Contrib\HeaderCommentFixer;
 use Symfony\CS\FixerInterface;
 
 $header = <<<'EOF'
-This file is part of the Fast Diff library.
+This file is part of the Draft.php library.
 
 (c) Webstronauts <contact@webstronauts.co>
 

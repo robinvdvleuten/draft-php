@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Fast Diff library.
+ * This file is part of the Draft.php library.
  *
  * (c) Webstronauts <contact@webstronauts.co>
  *
