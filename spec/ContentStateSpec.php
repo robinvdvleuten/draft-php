@@ -19,7 +19,7 @@ use PhpSpec\ObjectBehavior;
  */
 class ContentStateSpec extends ObjectBehavior
 {
-    public function it_can_be_createed_from_block_array(ContentBlock $block)
+    public function it_can_be_created_from_block_array(ContentBlock $block)
     {
         $block->getKey()->willReturn('123')->shouldBeCalled();
 
