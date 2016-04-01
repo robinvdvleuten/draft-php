@@ -26,7 +26,7 @@
     }
   },
   "scripts": {
-    "test": "bin/phpspec; bin/php-cs-fixer fix -v --diff --dry-run;"
+    "test": "bin/phpspec run; bin/php-cs-fixer fix -v --diff --dry-run;"
   },
   "config": {
     "bin-dir": "bin"
