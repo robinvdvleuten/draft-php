@@ -1,0 +1,4 @@
+suites:
+    draft:
+        namespace: Draft
+        psr4_prefix: Draft
