@@ -20,6 +20,10 @@ class CharacterMetadataSpec extends ObjectBehavior
 {
     public function it_is_initializable()
     {
+        $this->beConstructedWith(['ITALIC'], 0);
         $this->shouldHaveType('Draft\CharacterMetadata');
+
+        $this->getStyle()->shouldReturn(['ITALIC']);
+        $this->getEntity()->shouldReturn(0);
     }
 }

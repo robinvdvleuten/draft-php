@@ -32,5 +32,5 @@ install:
   - travis_retry composer install --prefer-dist
 
 script:
-  - vendor/bin/phpspec run;
-  - if [ "$EXECUTE_CS_CHECK" == "true" ]; then vendor/bin/php-cs-fixer fix -v --diff --dry-run; fi
+  - bin/phpspec run;
+  - if [ "$EXECUTE_CS_CHECK" == "true" ]; then bin/php-cs-fixer fix -v --diff --dry-run; fi
