@@ -53,4 +53,12 @@ class ContentStateSpec extends ObjectBehavior
 
         $this->getBlockMap()->shouldHaveCount(2);
     }
+
+    public function it_returns_block_map_as_array(ContentBlock $block)
+    {
+        $this->beConstructedWith([$block]);
+
+        $this->getBlocksAsArray()->shouldHaveCount(1);
+        $this->getBlocksAsArray()->shouldContain($block);
+    }
 }

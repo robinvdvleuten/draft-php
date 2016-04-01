@@ -97,6 +97,14 @@ class ContentState
     }
 
     /**
+     * @return ContentBlock[]
+     */
+    public function getBlocksAsArray()
+    {
+        return array_values($this->blockMap);
+    }
+
+    /**
      * @return SelectionState
      */
     public function getSelectionBefore()
