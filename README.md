@@ -5,7 +5,7 @@ A simple library to handle the content state of [Draft.js](https://github.com/fa
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/webstronauts/draft-php.svg?style=flat-square)](https://packagist.org/packages/webstronauts/draft-php)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE)
 [![HHVM Status](https://img.shields.io/hhvm/webstronauts/draft-php.svg?style=flat-square)](http://hhvm.h4cc.de/package/webstronauts/draft-php)
-[![Build Status](https://travis-ci.org/webstronauts/draft-php.svg?branch=master)](https://travis-ci.org/webstronauts/draft-php)
+[![Build Status](https://img.shields.io/travis/webstronauts/draft-php.svg?style=flat-square)](https://travis-ci.org/webstronauts/draft-php)
 [![Total Downloads](https://img.shields.io/packagist/dt/webstronauts/draft-php.svg?style=flat-square)](https://packagist.org/packages/webstronauts/draft-php)
 
 ## Usage
