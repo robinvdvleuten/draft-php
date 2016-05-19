@@ -61,4 +61,43 @@ class ContentStateSpec extends ObjectBehavior
         $this->getBlocksAsArray()->shouldHaveCount(1);
         $this->getBlocksAsArray()->shouldContain($block);
     }
+
+    public function it_returns_plain_text_from_blocks()
+    {
+        $this->beConstructedThrough('createFromText', ["Hello\r\nWorld!"]);
+
+        $this->getPlainText()->shouldReturn("Hello\nWorld!");
+    }
+
+    public function it_returns_plain_text_from_blocks_with_custom_delimiter()
+    {
+        $this->beConstructedThrough('createFromText', ["Hello\r\nWorld!"]);
+
+        $this->getPlainText('|')->shouldReturn('Hello|World!');
+    }
+
+    public function it_should_have_text_if_block_has_text(ContentBlock $block)
+    {
+        $block->getText()->willReturn('text');
+
+        $this->beConstructedWith([$block]);
+
+        $this->shouldHaveText();
+    }
+
+    public function it_should_not_have_text_if_block_has_empty_text(ContentBlock $block)
+    {
+        $block->getText()->willReturn('');
+
+        $this->beConstructedWith([$block]);
+
+        $this->shouldNotHaveText();
+    }
+
+    public function it_should_not_have_text_if_state_has_no_blocks()
+    {
+        $this->beConstructedWith([]);
+
+        $this->shouldNotHaveText();
+    }
 }
