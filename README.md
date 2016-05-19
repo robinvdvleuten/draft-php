@@ -22,6 +22,10 @@ $contentState = ContentState::createFromBlockArray($contentBlocks);
 var_dump($contentState);
 ```
 
+## Under Development
+
+This bundle is currently under heavy development and some aspects are likely to change until considered stable.
+
 ## Inspiration
 
 Many thanks to the [Draft.js](https://github.com/facebook/draft-js) team for the initial inspiration that became the groundworks for the library.
