@@ -62,6 +62,16 @@ class ContentStateSpec extends ObjectBehavior
         $this->getBlocksAsArray()->shouldContain($block);
     }
 
+    public function it_returns_block_for_key(ContentBlock $block)
+    {
+        $block->getKey()->willReturn('key');
+
+        $this->beConstructedWith([$block]);
+
+        $this->getBlockForKey('key')->shouldReturn($block);
+        $this->getBlockForKey('unknown')->shouldReturn(null);
+    }
+
     public function it_returns_first_block_from_map()
     {
         $this->beConstructedThrough('createFromText', ["A\r\nB\r\nC"]);

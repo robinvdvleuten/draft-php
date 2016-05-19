@@ -123,6 +123,20 @@ class ContentState
     /**
      * @return ContentBlock
      */
+    public function getBlockForKey($key)
+    {
+        foreach ($this->blockMap as $block) {
+            if ($block->getKey() === $key) {
+                return $block;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return ContentBlock
+     */
     public function getFirstBlock()
     {
         return reset($this->blockMap);
