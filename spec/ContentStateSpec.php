@@ -62,6 +62,24 @@ class ContentStateSpec extends ObjectBehavior
         $this->getBlocksAsArray()->shouldContain($block);
     }
 
+    public function it_returns_first_block_from_map()
+    {
+        $this->beConstructedThrough('createFromText', ["A\r\nB\r\nC"]);
+
+        $block = $this->getFirstBlock();
+        $block->shouldHaveType('Draft\ContentBlock');
+        $block->getText()->shouldReturn('A');
+    }
+
+    public function it_returns_last_block_from_map()
+    {
+        $this->beConstructedThrough('createFromText', ["A\r\nB\r\nC"]);
+
+        $block = $this->getLastBlock();
+        $block->shouldHaveType('Draft\ContentBlock');
+        $block->getText()->shouldReturn('C');
+    }
+
     public function it_returns_plain_text_from_blocks()
     {
         $this->beConstructedThrough('createFromText', ["Hello\r\nWorld!"]);

@@ -121,6 +121,22 @@ class ContentState
     }
 
     /**
+     * @return ContentBlock
+     */
+    public function getFirstBlock()
+    {
+        return reset($this->blockMap);
+    }
+
+    /**
+     * @return ContentBlock
+     */
+    public function getLastBlock()
+    {
+        return end($this->blockMap);
+    }
+
+    /**
      * @param string $delimiter
      *
      * @return string
