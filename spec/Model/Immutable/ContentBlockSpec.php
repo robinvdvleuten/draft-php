@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace spec\Draft;
+namespace spec\Draft\Model\Immutable;
 
 use PhpSpec\ObjectBehavior;
 
@@ -21,8 +21,8 @@ class ContentBlockSpec extends ObjectBehavior
     public function it_is_initializable_with_defaults()
     {
         $this->beConstructedWith('123', 'unstyled');
-        
-        $this->shouldHaveType('Draft\ContentBlock');
+
+        $this->shouldHaveType('Draft\Model\Immutable\ContentBlock');
 
         $this->getKey()->shouldReturn('123');
         $this->getType()->shouldReturn('unstyled');
@@ -35,7 +35,7 @@ class ContentBlockSpec extends ObjectBehavior
     {
         $this->beConstructedWith('123', 'unstyled', 'Hello, Block!', ['a'], 2);
 
-        $this->shouldHaveType('Draft\ContentBlock');
+        $this->shouldHaveType('Draft\Model\Immutable\ContentBlock');
 
         $this->getKey()->shouldReturn('123');
         $this->getType()->shouldReturn('unstyled');

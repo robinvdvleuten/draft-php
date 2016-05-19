@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace spec\Draft;
+namespace spec\Draft\Model\Immutable;
 
 use PhpSpec\ObjectBehavior;
 
@@ -21,7 +21,7 @@ class SelectionStateSpec extends ObjectBehavior
     public function it_can_be_created_with_empty_data()
     {
         $this->beConstructedThrough('createEmpty', ['123']);
-        $this->shouldHaveType('Draft\SelectionState');
+        $this->shouldHaveType('Draft\Model\Immutable\SelectionState');
 
         $this->getAnchorKey()->shouldReturn('123');
     }

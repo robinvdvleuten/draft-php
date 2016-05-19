@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Draft;
+namespace Draft\Model\Immutable;
 
 /**
  * @author Robin van der Vleuten <robin@webstronauts.co>

@@ -27,7 +27,7 @@ class EncodingSpec extends ObjectBehavior
 
         $block = $blocks[0];
 
-        $block->shouldBeAnInstanceOf('Draft\ContentBlock');
+        $block->shouldBeAnInstanceOf('Draft\Model\Immutable\ContentBlock');
         $block->getKey()->shouldReturn('33nh8');
         $block->getText()->shouldReturn('a');
         $block->getType()->shouldReturn('unstyled');
@@ -37,7 +37,7 @@ class EncodingSpec extends ObjectBehavior
         $characterList->shouldHaveCount(1);
 
         $characterMetadata = $characterList[0];
-        $characterMetadata->shouldBeAnInstanceOf('Draft\CharacterMetadata');
+        $characterMetadata->shouldBeAnInstanceOf('Draft\Model\Immutable\CharacterMetadata');
         $characterMetadata->getStyle()->shouldReturn([]);
         $characterMetadata->getEntity()->shouldReturn(null);
     }
@@ -51,7 +51,7 @@ class EncodingSpec extends ObjectBehavior
 
         $block = $blocks[0];
 
-        $block->shouldBeAnInstanceOf('Draft\ContentBlock');
+        $block->shouldBeAnInstanceOf('Draft\Model\Immutable\ContentBlock');
         $block->getKey()->shouldReturn('8r91j');
         $block->getText()->shouldReturn('a');
         $block->getType()->shouldReturn('unstyled');
@@ -61,7 +61,7 @@ class EncodingSpec extends ObjectBehavior
         $characterList->shouldHaveCount(1);
 
         $characterMetadata = $characterList[0];
-        $characterMetadata->shouldBeAnInstanceOf('Draft\CharacterMetadata');
+        $characterMetadata->shouldBeAnInstanceOf('Draft\Model\Immutable\CharacterMetadata');
         $characterMetadata->getStyle()->shouldReturn(['ITALIC']);
         $characterMetadata->getEntity()->shouldReturn('3');
     }
@@ -75,7 +75,7 @@ class EncodingSpec extends ObjectBehavior
         $characterList->shouldHaveCount(1);
 
         $characterMetadata = $characterList[0];
-        $characterMetadata->shouldBeAnInstanceOf('Draft\CharacterMetadata');
+        $characterMetadata->shouldBeAnInstanceOf('Draft\Model\Immutable\CharacterMetadata');
         $characterMetadata->getStyle()->shouldReturn(['ITALIC']);
         $characterMetadata->getEntity()->shouldReturn(0);
     }

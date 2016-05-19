@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace spec\Draft;
+namespace spec\Draft\Model\Immutable;
 
-use Draft\ContentBlock;
+use Draft\Model\Immutable\ContentBlock;
 use PhpSpec\ObjectBehavior;
 
 /**
@@ -24,7 +24,7 @@ class ContentStateSpec extends ObjectBehavior
         $block->getKey()->willReturn('123')->shouldBeCalled();
 
         $this->beConstructedThrough('createFromBlockArray', [[$block]]);
-        $this->shouldHaveType('Draft\ContentState');
+        $this->shouldHaveType('Draft\Model\Immutable\ContentState');
 
         $this->getBlockMap()->shouldHaveCount(1);
         $this->getBlockMap()->shouldHaveKeyWithValue('123', $block);
@@ -33,7 +33,7 @@ class ContentStateSpec extends ObjectBehavior
     public function it_can_be_created_from_text()
     {
         $this->beConstructedThrough('createFromText', ['Hello, World!']);
-        $this->shouldHaveType('Draft\ContentState');
+        $this->shouldHaveType('Draft\Model\Immutable\ContentState');
 
         $this->getBlockMap()->shouldHaveCount(1);
     }
@@ -41,7 +41,7 @@ class ContentStateSpec extends ObjectBehavior
     public function it_can_be_created_from_multiline_text()
     {
         $this->beConstructedThrough('createFromText', ["Hello\r\nWorld!"]);
-        $this->shouldHaveType('Draft\ContentState');
+        $this->shouldHaveType('Draft\Model\Immutable\ContentState');
 
         $this->getBlockMap()->shouldHaveCount(2);
     }
@@ -49,7 +49,7 @@ class ContentStateSpec extends ObjectBehavior
     public function it_can_be_created_from_multiline_text_with_custom_delimiter()
     {
         $this->beConstructedThrough('createFromText', ["Hello\tWorld!", '/\t/']);
-        $this->shouldHaveType('Draft\ContentState');
+        $this->shouldHaveType('Draft\Model\Immutable\ContentState');
 
         $this->getBlockMap()->shouldHaveCount(2);
     }
@@ -77,7 +77,7 @@ class ContentStateSpec extends ObjectBehavior
         $this->beConstructedThrough('createFromText', ["A\r\nB\r\nC"]);
 
         $block = $this->getFirstBlock();
-        $block->shouldHaveType('Draft\ContentBlock');
+        $block->shouldHaveType('Draft\Model\Immutable\ContentBlock');
         $block->getText()->shouldReturn('A');
     }
 
@@ -86,7 +86,7 @@ class ContentStateSpec extends ObjectBehavior
         $this->beConstructedThrough('createFromText', ["A\r\nB\r\nC"]);
 
         $block = $this->getLastBlock();
-        $block->shouldHaveType('Draft\ContentBlock');
+        $block->shouldHaveType('Draft\Model\Immutable\ContentBlock');
         $block->getText()->shouldReturn('C');
     }
 

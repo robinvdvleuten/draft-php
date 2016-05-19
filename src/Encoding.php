@@ -11,6 +11,8 @@
 
 namespace Draft;
 
+use Draft\Model\Immutable\CharacterMetadata;
+use Draft\Model\Immutable\ContentBlock;
 use Draft\Util\Keys;
 
 /**
@@ -48,7 +50,7 @@ class Encoding
                 return isset($fromStorageToLocal[$entityRange['key']]);
             }));
 
-            $entities = Encoding::decodeEntityRanges($block['text'], $filteredEntityRanges);;
+            $entities = Encoding::decodeEntityRanges($block['text'], $filteredEntityRanges);
             $characterList = Encoding::createCharacterList($inlineStyles, $entities);
 
             return new ContentBlock($key, $block['type'], $block['text'], $characterList, $depth);
