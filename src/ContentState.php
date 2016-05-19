@@ -127,7 +127,7 @@ class ContentState
      */
     public function getPlainText($delimiter = PHP_EOL)
     {
-        return implode($delimiter, array_map(function(ContentBlock $block) {
+        return implode($delimiter, array_map(function (ContentBlock $block) {
             return $block->getText();
         }, $this->blockMap));
     }
@@ -137,7 +137,7 @@ class ContentState
      */
     public function hasText()
     {
-        return !!array_filter($this->blockMap, function(ContentBlock $block) {
+        return !!array_filter($this->blockMap, function (ContentBlock $block) {
             return strlen($block->getText()) > 0;
         });
     }
