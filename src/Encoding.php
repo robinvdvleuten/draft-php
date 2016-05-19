@@ -22,14 +22,16 @@ class Encoding
     {
         $fromStorageToLocal = [];
 
-        foreach ($rawState['entityMap'] as $storageKey => $encodedEntity) {
-            $newKey = DraftEntity::create(
-                $encodedEntity['type'],
-                $encodedEntity['mutability'],
-                isset($encodedEntity['data']) ? $encodedEntity['data'] : null
-            );
+        if (isset($rawState['entityMap'])) {
+            foreach ($rawState['entityMap'] as $storageKey => $encodedEntity) {
+                $newKey = DraftEntity::create(
+                    $encodedEntity['type'],
+                    $encodedEntity['mutability'],
+                    isset($encodedEntity['data']) ? $encodedEntity['data'] : null
+                );
 
-            $fromStorageToLocal[$storageKey] = $newKey;
+                $fromStorageToLocal[$storageKey] = $newKey;
+            }
         }
 
         return array_map(function ($block) use ($fromStorageToLocal) {

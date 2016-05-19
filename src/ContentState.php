@@ -57,7 +57,7 @@ class ContentState
         $blockMap = array_combine(array_map(function (ContentBlock $block) {
             return $block->getKey();
         }, $blocks), $blocks);
-        
+
         $selectionState = SelectionState::createEmpty(current($blockMap)->getKey());
 
         return new self($blockMap, $selectionState, $selectionState);
@@ -118,5 +118,27 @@ class ContentState
     public function getSelectionAfter()
     {
         return $this->selectionAfter;
+    }
+
+    /**
+     * @param string $delimiter
+     *
+     * @return string
+     */
+    public function getPlainText($delimiter = PHP_EOL)
+    {
+        return implode($delimiter, array_map(function(ContentBlock $block) {
+            return $block->getText();
+        }, $this->blockMap));
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasText()
+    {
+        return !!array_filter($this->blockMap, function(ContentBlock $block) {
+            return strlen($block->getText()) > 0;
+        });
     }
 }
