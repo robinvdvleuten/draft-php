@@ -63,7 +63,7 @@ class EncodingSpec extends ObjectBehavior
         $characterMetadata = $characterList[0];
         $characterMetadata->shouldBeAnInstanceOf('Draft\Model\Immutable\CharacterMetadata');
         $characterMetadata->getStyle()->shouldReturn(['ITALIC']);
-        $characterMetadata->getEntity()->shouldReturn('3');
+        $characterMetadata->getEntity()->shouldReturn('1');
     }
 
     public function it_creates_character_list()
@@ -82,16 +82,31 @@ class EncodingSpec extends ObjectBehavior
 
     public function it_decodes_entity_ranges()
     {
-        $entityRanges = $this::decodeEntityRanges('a');
-        $entityRanges->shouldHaveCount(1);
+        $entityRanges = $this::decodeEntityRanges(str_repeat(' ', 20));
+        $entityRanges->shouldHaveCount(20);
         $entityRanges->shouldContain(null);
     }
 
-    public function it_decodes_entity_ranges_with_ranges()
+    public function it_decodes_when_multiple_entities_are_present()
     {
-        $entityRanges = $this::decodeEntityRanges('a', [['offset' => 0, 'length' => 1, 'key' => 0]]);
-        $entityRanges->shouldHaveCount(1);
-        $entityRanges->shouldContain(0);
+        $entityRanges = $this::decodeEntityRanges(str_repeat(' ', 8), [
+            ['offset' => 2, 'length' => 2, 'key' => '6'],
+            ['offset' => 5, 'length' => 2, 'key' => '8'],
+        ]);
+
+        $entityRanges->shouldHaveCount(8);
+        $entityRanges->shouldReturn([null, null, '6', '6', null, '8', '8', null]);
+    }
+
+    public function it_decodes_when_entity_is_present_more_than_once()
+    {
+        $entityRanges = $this::decodeEntityRanges(str_repeat(' ', 8), [
+            ['offset' => 2, 'length' => 2, 'key' => '6'],
+            ['offset' => 5, 'length' => 2, 'key' => '6'],
+        ]);
+
+        $entityRanges->shouldHaveCount(8);
+        $entityRanges->shouldReturn([null, null, '6', '6', null, '6', '6', null]);
     }
 
     public function it_decodes_inline_style_ranges()

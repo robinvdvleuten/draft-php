@@ -11,6 +11,7 @@
 
 namespace Draft;
 
+use Draft\Model\Entity\DraftEntity;
 use Draft\Model\Immutable\CharacterMetadata;
 use Draft\Model\Immutable\ContentBlock;
 use Draft\Util\Keys;
@@ -66,6 +67,7 @@ class Encoding
 
     public static function decodeEntityRanges($text, array $ranges = null)
     {
+        // @TODO Make sure that strlen respects characters like emoji.
         $entities = array_fill(0, strlen($text), null);
 
         if ($ranges) {

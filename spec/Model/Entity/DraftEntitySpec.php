@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace spec\Draft;
+namespace spec\Draft\Model\Entity;
 
 use PhpSpec\ObjectBehavior;
 
@@ -21,7 +21,7 @@ class DraftEntitySpec extends ObjectBehavior
     public function it_is_initializable()
     {
         $this->beConstructedWith('LINK', 'MUTABLE');
-        $this->shouldHaveType('Draft\DraftEntity');
+        $this->shouldHaveType('Draft\Model\Entity\DraftEntity');
 
         $this->getType()->shouldReturn('LINK');
         $this->getMutability()->shouldReturn('MUTABLE');
@@ -33,7 +33,7 @@ class DraftEntitySpec extends ObjectBehavior
         $data = new \stdClass();
 
         $this->beConstructedWith('LINK', 'MUTABLE', $data);
-        $this->shouldHaveType('Draft\DraftEntity');
+        $this->shouldHaveType('Draft\Model\Entity\DraftEntity');
 
         $this->getType()->shouldReturn('LINK');
         $this->getMutability()->shouldReturn('MUTABLE');
@@ -49,7 +49,7 @@ class DraftEntitySpec extends ObjectBehavior
 
         $instance = $this::get($key);
 
-        $instance->shouldBeAnInstanceOf('Draft\DraftEntity');
+        $instance->shouldBeAnInstanceOf('Draft\Model\Entity\DraftEntity');
         $instance->getType()->shouldReturn('LINK');
         $instance->getMutability()->shouldReturn('MUTABLE');
     }
