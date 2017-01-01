@@ -151,6 +151,80 @@ class ContentState
     }
 
     /**
+     * @param string $key
+     *
+     * @return string|null
+     */
+    public function getKeyBefore(string $key)
+    {
+        return $this->getRelativeKey($key, 'prev');
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return string|null
+     */
+    public function getKeyAfter(string $key)
+    {
+        return $this->getRelativeKey($key, 'next');
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return ContentBlock|null
+     */
+    public function getBlockBefore(string $key)
+    {
+        return $this->getRelativeKey($key, 'prev', true);
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return ContentBlock|null
+     */
+    public function getBlockAfter(string $key)
+    {
+        return $this->getRelativeKey($key, 'next', true);
+    }
+
+    /**
+     * @param string $key
+     * @param string $relative
+     * @param bool $return_value
+     *
+     * @return ContentBlock|mixed|null|string
+     */
+    private function getRelativeKey(string $key, string $relative, bool $return_value = false)
+    {
+        $map = $this->blockMap;
+        reset($map);
+
+        do {
+            if ($key === key($map)) {
+                if ($relative === 'prev') {
+                    prev($map);
+                } else if ($relative === 'next') {
+                    next($map);
+                }
+                if ($key = key($map)) {
+                    if ($return_value === true) {
+                        return $map[$key];
+                    } else {
+                        return $key;
+                    }
+                } else {
+                    return null;
+                }
+            }
+        } while ($next = next($map) !== false);
+
+        return null;
+    }
+
+    /**
      * @param string $delimiter
      *
      * @return string
