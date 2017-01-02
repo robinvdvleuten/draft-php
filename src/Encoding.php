@@ -14,6 +14,7 @@ namespace Draft;
 use Draft\Model\Entity\DraftEntity;
 use Draft\Model\Immutable\CharacterMetadata;
 use Draft\Model\Immutable\ContentBlock;
+use Draft\Model\Immutable\ContentState;
 use Draft\Util\Keys;
 
 /**
@@ -21,6 +22,11 @@ use Draft\Util\Keys;
  */
 class Encoding
 {
+    /**
+     * @param array $rawState
+     *
+     * @return ContentState
+     */
     public static function convertFromRaw(array $rawState)
     {
         $fromStorageToLocal = [];
@@ -37,7 +43,7 @@ class Encoding
             }
         }
 
-        return array_map(function ($block) use ($fromStorageToLocal) {
+        $contentBlocks = array_map(function ($block) use ($fromStorageToLocal) {
             $key = isset($block['key']) ? $block['key'] : Keys::generateRandomKey();
             $depth = isset($block['depth']) ? $block['depth'] : 0;
             $inlineStyleRanges = isset($block['inlineStyleRanges']) ? $block['inlineStyleRanges'] : [];
@@ -56,8 +62,16 @@ class Encoding
 
             return new ContentBlock($key, $block['type'], $block['text'], $characterList, $depth);
         }, $rawState['blocks']);
+
+        return new ContentState($contentBlocks);
     }
 
+    /**
+     * @param array $inlineStyles
+     * @param array $entities
+     *
+     * @return CharacterMetadata[]
+     */
     public static function createCharacterList(array $inlineStyles, array $entities)
     {
         return array_map(function ($style, $index) use ($entities) {
@@ -65,6 +79,12 @@ class Encoding
         }, $inlineStyles, array_keys($inlineStyles));
     }
 
+    /**
+     * @param $text
+     * @param array|null $ranges
+     *
+     * @return array
+     */
     public static function decodeEntityRanges($text, array $ranges = null)
     {
         // @TODO Make sure that strlen respects characters like emoji.
@@ -85,6 +105,12 @@ class Encoding
         return $entities;
     }
 
+    /**
+     * @param $text
+     * @param array|null $ranges
+     *
+     * @return array
+     */
     public static function decodeInlineStyleRanges($text, array $ranges = null)
     {
         $styles = array_fill(0, strlen($text), []);
