@@ -294,4 +294,12 @@ class ContentState
     {
         return DraftEntity::getLastCreatedKey();
     }
+
+    /**
+     * @return array
+     */
+    public function getEntityMap()
+    {
+        return DraftEntity::getEntityMap();
+    }
 }

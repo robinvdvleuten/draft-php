@@ -80,6 +80,14 @@ class DraftEntity
     }
 
     /**
+     * @return array
+     */
+    public static function getEntityMap()
+    {
+        return self::$instances;
+    }
+
+    /**
      * @param $key
      *
      * @return DraftEntity
