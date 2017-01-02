@@ -66,6 +66,11 @@ class DraftEntity
         return self::add(new DraftEntity($type, $mutability, $data));
     }
 
+    public static function set($key, DraftEntity $instance)
+    {
+        self::$instances[$key] = $instance;
+    }
+
     public static function add(DraftEntity $instance)
     {
         $key = (string) ++self::$instanceKey;
@@ -74,6 +79,11 @@ class DraftEntity
         return $key;
     }
 
+    /**
+     * @param $key
+     *
+     * @return DraftEntity
+     */
     public static function get($key)
     {
         if (!isset(self::$instances[$key])) {
@@ -81,6 +91,15 @@ class DraftEntity
         }
 
         return self::$instances[$key];
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function getLastCreatedKey()
+    {
+        end(self::$instances);
+        return key(self::$instances);
     }
 
     /**
@@ -105,5 +124,13 @@ class DraftEntity
     public function getData()
     {
         return $this->data;
+    }
+
+    /**
+     * @param mixed $data
+     */
+    public function setData($data)
+    {
+        $this->data = $data;
     }
 }

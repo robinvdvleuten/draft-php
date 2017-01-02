@@ -11,6 +11,7 @@
 
 namespace Draft\Model\Immutable;
 
+use Draft\Model\Entity\DraftEntity;
 use Draft\Util\Keys;
 
 /**
@@ -244,5 +245,53 @@ class ContentState
         return !!array_filter($this->blockMap, function (ContentBlock $block) {
             return strlen($block->getText()) > 0;
         });
+    }
+
+    /**
+     * @param string $type
+     * @param $mutability
+     * @param array|null $data
+     */
+    public function createEntity(string $type, $mutability, array $data = null)
+    {
+        DraftEntity::create($type, $mutability, $data);
+    }
+
+    /**
+     * @param string $key
+     * @param array $newData
+     */
+    public function replaceEntityData(string $key, array $newData)
+    {
+        $entity = DraftEntity::get($key);
+        $entity->setData($newData);
+        DraftEntity::set($key, $entity);
+    }
+
+    /**
+     * @param $entity
+     */
+    public function addEntity($entity)
+    {
+        $entity = new DraftEntity($entity['type'], $entity['mutability'], $entity['data']);
+        DraftEntity::add($entity);
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return DraftEntity
+     */
+    public function getEntity(string $key)
+    {
+        return DraftEntity::get($key);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLastCreatedEntityKey()
+    {
+        return DraftEntity::getLastCreatedKey();
     }
 }
