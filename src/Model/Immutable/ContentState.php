@@ -204,11 +204,11 @@ class ContentState
     /**
      * @param string $key
      * @param string $relative
-     * @param bool $return_value
+     * @param bool $returnValue
      *
      * @return ContentBlock|mixed|null|string
      */
-    private function getRelativeBlock($key, $relative, $return_value = false)
+    private function getRelativeBlock($key, $relative, $returnValue = false)
     {
         $map = $this->blockMap;
         reset($map);
@@ -221,7 +221,7 @@ class ContentState
                     next($map);
                 }
                 if ($key = key($map)) {
-                    if ($return_value === true) {
+                    if ($returnValue === true) {
                         return $map[$key];
                     } else {
                         return $key;
@@ -297,7 +297,7 @@ class ContentState
      */
     public function getEntity($key)
     {
-        return $this->entityMap[$key] ?? null;
+        return isset($this->entityMap[$key]) ? $this->entityMap[$key] : null;
     }
 
     /**
@@ -314,5 +314,13 @@ class ContentState
     public function getEntityMap()
     {
         return $this->entityMap;
+    }
+
+    /**
+     * @param $key
+     */
+    public function __removeEntity($key)
+    {
+        unset($this->entityMap[$key]);
     }
 }

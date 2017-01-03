@@ -38,16 +38,32 @@ class CharacterMetadata
     /**
      * @return array
      */
-    public function getStyle()
+    public function getStyle(): array
     {
         return $this->style;
     }
 
     /**
-     * @return string|null
+     * @param array $style
+     */
+    public function setStyle(array $style)
+    {
+        $this->style = $style;
+    }
+
+    /**
+     * @return null|string
      */
     public function getEntity()
     {
         return $this->entity;
+    }
+
+    /**
+     * @param null|string $entity
+     */
+    public function setEntity($entity)
+    {
+        $this->entity = $entity;
     }
 }
