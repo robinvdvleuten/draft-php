@@ -67,14 +67,12 @@ class ValidatorSpec extends ObjectBehavior
     public function it_should_set_content_block_depth_to_max_depth_if_bigger_than_max_depth()
     {
         $contentState = ContentState::createFromBlockArray([
-            new ContentBlock('a', 'unstyled', 'a test text', [
-                new CharacterMetadata(['BOLD'], 0)
-            ], 20),
+            new ContentBlock('a', 'unstyled', 'a test text', [], 20),
         ]);
 
         $contentState = $this::validate($contentState, new ValidatorConfig());
 
-        $contentState->getFirstBlock()->getDepth()->shouldReturn(1);
+        $contentState->getFirstBlock()->getDepth()->shouldReturn(0);
     }
 
     public function it_should_autofix_content_block_depth()
@@ -104,23 +102,37 @@ class ValidatorSpec extends ObjectBehavior
     public function it_should_remove_depth_from_unsupported_block_types()
     {
         $contentState = ContentState::createFromBlockArray([
-            new ContentBlock('a', 'ordered-list-item', '', [], 1),
-            new ContentBlock('b', 'unstyled', '', [], 1),
-            new ContentBlock('c', 'header-one', '', [], 1),
-            new ContentBlock('d', 'atomic', '', [], 1),
-            new ContentBlock('e', 'unordered-list-item', '', [], 1),
-            new ContentBlock('f', 'NOT_ALLOWED_BLOCK_TYPE', '', [], 1),
+            new ContentBlock('a', 'ordered-list-item', '', [], 0),
+            new ContentBlock('b', 'ordered-list-item', '', [], 1),
+            new ContentBlock('c', 'unstyled', '', [], 0),
+            new ContentBlock('d', 'header-one', '', [], 0),
+            new ContentBlock('e', 'atomic', '', [], 0),
+            new ContentBlock('f', 'unordered-list-item', '', [], 0),
+            new ContentBlock('g', 'unordered-list-item', '', [], 1),
+            new ContentBlock('h', 'NOT_ALLOWED_BLOCK_TYPE', '', [], 0),
         ]);
 
         /** @var ContentState $contentState */
         $contentState = $this::validate($contentState, new ValidatorConfig());
 
-        $contentState->getBlockForKey('a')->getDepth()->shouldReturn(1);
-        $contentState->getBlockForKey('b')->getDepth()->shouldReturn(0); // removed depth
+        $contentState->getBlockForKey('a')->getDepth()->shouldReturn(0); // removed depth
+        $contentState->getBlockForKey('b')->getDepth()->shouldReturn(1);
         $contentState->getBlockForKey('c')->getDepth()->shouldReturn(0); // removed depth
         $contentState->getBlockForKey('d')->getDepth()->shouldReturn(0); // removed depth
-        $contentState->getBlockForKey('e')->getDepth()->shouldReturn(1);
+        $contentState->getBlockForKey('e')->getDepth()->shouldReturn(0); // removed depth
         $contentState->getBlockForKey('f')->getDepth()->shouldReturn(0); // removed depth
+        $contentState->getBlockForKey('g')->getDepth()->shouldReturn(1);
+        $contentState->getBlockForKey('h')->getDepth()->shouldReturn(0); // removed depth
+    }
+
+    public function it_should_not_allow_start_list_item_with_depth_1_before_0_exists()
+    {
+        $contentState = ContentState::createFromBlockArray([
+            new ContentBlock('a', 'ordered-list-item', '', [], 1),
+        ]);
+
+        $this::shouldThrow(InvalidContentStateException::class)
+            ->duringValidate($contentState, new ValidatorConfig(), false);
     }
 
     public function it_should_remove_not_allowed_styles_from_character_meta_data()

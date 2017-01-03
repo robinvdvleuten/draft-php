@@ -65,13 +65,11 @@ class ContentState
      */
     public static function createFromBlockArray(array $blocks)
     {
-        $blockMap = array_combine(array_map(function (ContentBlock $block) {
-            return $block->getKey();
-        }, $blocks), $blocks);
+        $contentState = new self();
 
-        $selectionState = SelectionState::createEmpty(current($blockMap)->getKey());
+        $contentState->setBlockMap($blocks);
 
-        return new self($blockMap, $selectionState, $selectionState);
+        return $contentState;
     }
 
     /**
@@ -105,6 +103,18 @@ class ContentState
     public function getBlockMap()
     {
         return $this->blockMap;
+    }
+
+    /**
+     * @param ContentBlock[] $blocks
+     */
+    public function setBlockMap(array $blocks)
+    {
+        $blockMap = array_combine(array_map(function (ContentBlock $block) {
+            return $block->getKey();
+        }, $blocks), $blocks);
+
+        $this->blockMap = $blockMap;
     }
 
     /**
@@ -268,13 +278,15 @@ class ContentState
     }
 
     /**
-     * @param string $type
+     * @param $type
      * @param $mutability
      * @param array|null $data
+     *
+     * @return string
      */
     public function createEntity($type, $mutability, array $data = null)
     {
-        $this->addEntity(new DraftEntity($type, $mutability, $data));
+        return $this->addEntity(new DraftEntity($type, $mutability, $data));
     }
 
     /**
@@ -312,6 +324,14 @@ class ContentState
     public function getEntityMap()
     {
         return $this->entityMap;
+    }
+
+    /**
+     * @param DraftEntity[] $entityMap
+     */
+    public function setEntityMap(array $entityMap)
+    {
+        $this->entityMap = $entityMap;
     }
 
     /**

@@ -11,7 +11,6 @@
 
 namespace Draft;
 
-use Draft\Model\Entity\DraftEntity;
 use Draft\Model\Immutable\CharacterMetadata;
 use Draft\Model\Immutable\ContentBlock;
 use Draft\Model\Immutable\ContentState;
@@ -30,16 +29,17 @@ class Encoding
     public static function convertFromRaw(array $rawState)
     {
         $fromStorageToLocal = [];
+        $contentState = new ContentState();
 
         if (isset($rawState['entityMap'])) {
+
             foreach ($rawState['entityMap'] as $storageKey => $encodedEntity) {
-                $newKey = DraftEntity::create(
+                $entityKey = $contentState->createEntity(
                     $encodedEntity['type'],
                     $encodedEntity['mutability'],
-                    isset($encodedEntity['data']) ? $encodedEntity['data'] : null
+                    $encodedEntity['data']
                 );
-
-                $fromStorageToLocal[$storageKey] = $newKey;
+                $fromStorageToLocal[$storageKey] = $entityKey;
             }
         }
 
@@ -63,7 +63,9 @@ class Encoding
             return new ContentBlock($key, $block['type'], $block['text'], $characterList, $depth);
         }, $rawState['blocks']);
 
-        return new ContentState($contentBlocks);
+        $contentState->setBlockMap($contentBlocks);
+
+        return $contentState;
     }
 
     /**

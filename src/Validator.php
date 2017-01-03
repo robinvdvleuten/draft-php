@@ -35,16 +35,18 @@ class Validator
 {
     /**
      * @param ContentState $contentState
-     * @param ValidatorConfig|null $validatorConfig
+     * @param ValidatorConfig|array|null $validatorConfig
      * @param null $tryAutoFix
      *
      * @return ContentState
      * @throws InvalidContentStateException
      */
-    public function validate(ContentState $contentState, ValidatorConfig $validatorConfig = null, $tryAutoFix = null)
+    public function validate(ContentState $contentState, $validatorConfig = null, $tryAutoFix = null)
     {
         if ($validatorConfig === null) {
             $validatorConfig = new ValidatorConfig();
+        } else if (is_array($validatorConfig)) {
+            $validatorConfig = new ValidatorConfig($validatorConfig);
         }
 
         if ($tryAutoFix === null) {
@@ -74,6 +76,7 @@ class Validator
         }
 
         $lastDepth = 0;
+        $lastBlockType = null;
 
         foreach ($contentState->getEntityMap() as $key => $entity) {
             $type = $entity->getType();
@@ -116,14 +119,16 @@ class Validator
                 throw new InvalidContentStateException('Content block text in content state cannot contain new lines.');
             }
 
-            if ($depth > 0) {
-                if (!in_array($type, $validatorConfig->getBlockTypesWithDepth())) {
-                    if ($tryAutoFix) {
-                        $contentBlock->setDepth(0);
-                    } else {
-                        throw new InvalidContentStateException('Content block of type ' . $type . ' cannot have a depth.');
-                    }
+            if ($depth < 0) {
+                if ($tryAutoFix) {
+                    $contentBlock->setDepth(0);
+                } else {
+                    throw new InvalidContentStateException('Content block depth must equal or greater than 0.');
                 }
+            }
+
+            /** Block type if a type which supports depth */
+            if (in_array($type, $validatorConfig->getBlockTypesWithDepth())) {
                 if ($depth > $validatorConfig->getContentBlockMaxDepth()) {
                     if ($tryAutoFix) {
                         $contentBlock->setDepth($validatorConfig->getContentBlockMaxDepth());
@@ -132,32 +137,48 @@ class Validator
                     }
                 }
                 if ($validatorConfig->isIncrementalDepthSteps()) {
-                    if ($depth > $lastDepth + 1) {
+                    $lastBlockIsListItem = in_array($lastBlockType, $validatorConfig->getBlockTypesWithDepth());
+                    if ($lastBlockIsListItem === false && $depth > 0) {
                         if ($tryAutoFix) {
-                            $contentBlock->setDepth($lastDepth + 1);
+                            $contentBlock->setDepth(0);
                             $depth = $contentBlock->getDepth();
                         } else {
                             throw new InvalidContentStateException('Content block depth must raise in incremental steps.');
                         }
+                    } else if ($lastBlockIsListItem === true) {
+                        if ($depth > $lastDepth + 1) {
+                            if ($tryAutoFix) {
+                                $contentBlock->setDepth($lastDepth + 1);
+                                $depth = $contentBlock->getDepth();
+                            } else {
+                                throw new InvalidContentStateException('Content block depth must raise in incremental steps.');
+                            }
+                        }
                     }
                 }
-            } else if ($depth < 0) {
-                if ($tryAutoFix) {
-                    $contentBlock->setDepth(0);
-                } else {
-                    throw new InvalidContentStateException('Content block depth must equal or greater than 0.');
+            } else {
+                /** Block type if a type which NOT supports depth */
+
+                if ($depth !== 0) {
+                    if ($tryAutoFix) {
+                        $contentBlock->setDepth(0);
+                    } else {
+                        throw new InvalidContentStateException('Content block of type ' . $type . ' cannot have a depth.');
+                    }
                 }
             }
 
             foreach ($characterList as $characterMetadata) {
-                $characterEntity = $characterMetadata->getEntity();
+                $characterEntityKey = $characterMetadata->getEntity();
                 $characterStyle = $characterMetadata->getStyle();
 
-                if ($contentState->getEntity($characterEntity) === null) {
-                    if ($tryAutoFix) {
-                        $characterMetadata->setEntity(null);
-                    } else {
-                        throw new InvalidContentStateException('Character metadata contains not existing entity.');
+                if ($characterEntityKey !== null) {
+                    if ($contentState->getEntity($characterEntityKey) === null) {
+                        if ($tryAutoFix) {
+                            $characterMetadata->setEntity(null);
+                        } else {
+                            throw new InvalidContentStateException('Character metadata contains not existing entity.');
+                        }
                     }
                 }
 
@@ -179,6 +200,7 @@ class Validator
             }
 
             $lastDepth = $depth;
+            $lastBlockType = $type;
         }
 
         return $contentState;
