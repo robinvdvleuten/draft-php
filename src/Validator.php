@@ -6,6 +6,12 @@ use Draft\Model\Entity\DraftEntity;
 use Draft\Model\Immutable\ContentState;
 
 /**
+ * See ValidatorConfig for configurable validations
+ *
+ * In Addition following is validated:
+ * - ContentBlock text must not contains newline character
+ * - CharacterMetadata entity must reference to an existing entity in the entity map
+ *
  * Class Validator
  * @package Draft
  */

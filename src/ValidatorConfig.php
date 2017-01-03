@@ -1,6 +1,10 @@
 <?php
 namespace Draft;
 
+/**
+ * Class ValidatorConfig
+ * @package Draft
+ */
 class ValidatorConfig
 {
     /** @var int */
@@ -10,13 +14,13 @@ class ValidatorConfig
     private $contentBlockTypes = Defaults::BLOCK_TYPES; // Auto fixable: set type to unstyled
 
     /** @var array */
-    private $inlineStyles = Defaults::INLINE_STYLES; // Auto fixable - remove this style from character
+    private $inlineStyles = Defaults::INLINE_STYLES; // Auto fixable: remove not allowed style from character
 
     /** @var array */
-    private $entityTypes = []; // Auto fixable - remove entity from character and remove it from entity map
+    private $entityTypes = []; // Auto fixable: remove not allowed entity from character and from entity map
 
     /** @var bool */
-    private $validateEntityKeyExists = true; // NOT auto fixable
+    private $validateEntityKeyExists = true; // NOT auto fixable - @TODO: not used yet - always true.
 
     /** @var array */
     private $blockTypesWithDepth = Defaults::LIST_BLOCK_TYPES; // Auto fixable: set depth to 0
