@@ -309,7 +309,7 @@ class ContentState
     }
 
     /**
-     * @return array
+     * @return DraftEntity[]
      */
     public function getEntityMap()
     {

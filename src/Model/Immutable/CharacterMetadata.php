@@ -19,15 +19,15 @@ class CharacterMetadata
     private $style;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $entity;
 
     /**
      * Constructor.
      *
-     * @param array  $style
-     * @param string $entity
+     * @param array $style
+     * @param string|null $entity
      */
     public function __construct(array $style = [], $entity  = null)
     {
@@ -44,7 +44,7 @@ class CharacterMetadata
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getEntity()
     {

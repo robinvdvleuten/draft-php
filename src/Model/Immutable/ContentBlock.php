@@ -32,7 +32,7 @@ class ContentBlock
     private $text;
 
     /**
-     * @var array
+     * @var CharacterMetadata[]
      */
     private $characterList;
 
@@ -47,7 +47,7 @@ class ContentBlock
      * @param string $key
      * @param string $type
      * @param string $text
-     * @param array  $characterList
+     * @param CharacterMetadata[] $characterList
      * @param int    $depth
      */
     public function __construct($key, $type, $text = '', array $characterList = [], $depth = 0)
@@ -59,26 +59,41 @@ class ContentBlock
         $this->depth = $depth;
     }
 
+    /**
+     * @return string
+     */
     public function getKey()
     {
         return $this->key;
     }
 
+    /**
+     * @return string
+     */
     public function getType()
     {
         return $this->type;
     }
 
+    /**
+     * @return string
+     */
     public function getText()
     {
         return $this->text;
     }
 
+    /**
+     * @return CharacterMetadata[]
+     */
     public function getCharacterList()
     {
         return $this->characterList;
     }
 
+    /**
+     * @return int
+     */
     public function getDepth()
     {
         return $this->depth;
