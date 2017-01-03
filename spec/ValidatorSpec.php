@@ -34,7 +34,7 @@ class ValidatorSpec extends ObjectBehavior
         $contentState->getFirstBlock()->getType()->shouldReturn('unstyled');
     }
 
-    public function it_should_set_content_block_depth_to_max_depth_1()
+    public function it_should_set_content_block_depth_to_max_depth_if_bigger_than_max_depth()
     {
         $contentState = ContentState::createFromBlockArray([
             new ContentBlock('a', 'unstyled', 'a test text', [
@@ -47,7 +47,7 @@ class ValidatorSpec extends ObjectBehavior
         $contentState->getFirstBlock()->getDepth()->shouldReturn(1);
     }
 
-    public function it_should_set_content_block_depth_to_max_depth_2()
+    public function it_should_autofix_content_block_depth()
     {
         $contentState = ContentState::createFromBlockArray([
             new ContentBlock('a', 'ordered-list-item', 'a test text', [], 0),
