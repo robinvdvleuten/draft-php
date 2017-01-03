@@ -37,7 +37,7 @@ class Validator
 
         $lastDepth = 0;
 
-        foreach ($contentState->getEntityMap() as $entity) {
+        foreach ($contentState->getEntityMap() as $key => $entity) {
             $type = $entity->getType();
             $mutability = $entity->getMutability();
 
@@ -53,7 +53,7 @@ class Validator
 
             if (!in_array($type, $validatorConfig->getEntityTypes())) {
                 if ($tryAutoFix) {
-                    $contentState->__removeEntity($type);
+                    $contentState->__removeEntity($key);
                 } else {
                     throw new InvalidContentStateException('Entity contains not allowed type '. $type);
                 }

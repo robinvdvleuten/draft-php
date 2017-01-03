@@ -21,6 +21,26 @@ use PhpSpec\ObjectBehavior;
 
 class ValidatorSpec extends ObjectBehavior
 {
+    public function it_should_remove_not_allowed_entity_from_entity_map()
+    {
+        $contentState = ContentState::createFromBlockArray([
+            new ContentBlock('a', 'NOT_ALLOWED_BLOCK_TYPE', 'a test text', [
+                new CharacterMetadata(['BOLD'], 0)
+            ], 0),
+        ]);
+
+        $contentState->createEntity('NOT_ALLOWED_PHOTO', DraftEntity::MUTABILITY_SEGMENTED);
+        $contentState->createEntity('NOT_ALLOWED_VIDEO', DraftEntity::MUTABILITY_SEGMENTED);
+        $contentState->createEntity('ALLOWED_LINK', DraftEntity::MUTABILITY_SEGMENTED);
+
+        /** @var ContentState $contentState */
+        $contentState = $this::validate($contentState, new ValidatorConfig([
+            'entity_types' => ['ALLOWED_LINK'],
+        ]));
+
+        $contentState->getEntityMap()->shouldHaveCount(1);
+    }
+
     public function it_should_set_not_allowed_block_types_to_default()
     {
         $contentState = ContentState::createFromBlockArray([
@@ -103,7 +123,7 @@ class ValidatorSpec extends ObjectBehavior
     {
         $contentState = ContentState::createFromBlockArray([
             new ContentBlock('a', 'unstyled', 'a test text', [
-                new CharacterMetadata(['BOLD', 'NOT_ALLOWED', 'ITALIC', 'NOT_ALLWED_2'], 999)
+                new CharacterMetadata(['BOLD'], 999)
             ], 0),
         ]);
 
