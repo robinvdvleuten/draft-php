@@ -26,6 +26,19 @@ var_dump($contentState);
 
 This bundle is currently under heavy development and some aspects are likely to change until considered stable.
 
+## Tests
+
+To run the test suite, you need install the dependencies via composer, then run PHPUnit.
+
+```bash
+$ composer install
+$ composer test
+```
+
 ## Inspiration
 
 Many thanks to the [Draft.js](https://github.com/facebook/draft-js) team for the initial inspiration that became the groundworks for the library.
+
+## License
+
+MIT, see LICENSE
