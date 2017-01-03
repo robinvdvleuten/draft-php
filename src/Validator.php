@@ -25,9 +25,10 @@ class Validator
      * @return ContentState
      * @throws InvalidContentStateException
      */
-    public function validate(ContentState $contentState, ValidatorConfig $validatorConfig, bool $tryAutoFix = true)
+    public function validate(ContentState $contentState, ValidatorConfig $validatorConfig, $tryAutoFix = null)
     {
-        $lastDepth = null;
+        $tryAutoFix = is_null($tryAutoFix) ? true : $tryAutoFix;
+        $lastDepth = 0;
 
         foreach ($contentState->getEntityMap() as $entity) {
             $type = $entity->getType();
@@ -85,15 +86,19 @@ class Validator
                         throw new InvalidContentStateException('Content block maximal depth exceeded.');
                     }
                 }
-                if ($lastDepth !== null) {
-                    if ($depth > $lastDepth + 1) {
-                        if ($tryAutoFix) {
-                            $contentBlock->setDepth($lastDepth + 1);
-                            $depth = $contentBlock->getDepth();
-                        } else {
-                            throw new InvalidContentStateException('Content block depth must raise in incremental steps.');
-                        }
+                if ($depth > $lastDepth + 1) {
+                    if ($tryAutoFix) {
+                        $contentBlock->setDepth($lastDepth + 1);
+                        $depth = $contentBlock->getDepth();
+                    } else {
+                        throw new InvalidContentStateException('Content block depth must raise in incremental steps.');
                     }
+                }
+            } else if ($depth < 0) {
+                if ($tryAutoFix) {
+                    $contentBlock->setDepth(0);
+                } else {
+                    throw new InvalidContentStateException('Content block depth must equal or greater than 0.');
                 }
             }
 

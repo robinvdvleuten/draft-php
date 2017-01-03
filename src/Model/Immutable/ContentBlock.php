@@ -62,7 +62,7 @@ class ContentBlock
     /**
      * @return string
      */
-    public function getKey(): string
+    public function getKey()
     {
         return $this->key;
     }
@@ -70,7 +70,7 @@ class ContentBlock
     /**
      * @param string $key
      */
-    public function setKey(string $key)
+    public function setKey($key)
     {
         $this->key = $key;
     }
@@ -78,7 +78,7 @@ class ContentBlock
     /**
      * @return string
      */
-    public function getType(): string
+    public function getType()
     {
         return $this->type;
     }
@@ -86,7 +86,7 @@ class ContentBlock
     /**
      * @param string $type
      */
-    public function setType(string $type)
+    public function setType($type)
     {
         $this->type = $type;
     }
@@ -94,7 +94,7 @@ class ContentBlock
     /**
      * @return string
      */
-    public function getText(): string
+    public function getText()
     {
         return $this->text;
     }
@@ -102,7 +102,7 @@ class ContentBlock
     /**
      * @param string $text
      */
-    public function setText(string $text)
+    public function setText($text)
     {
         $this->text = $text;
     }
@@ -110,7 +110,7 @@ class ContentBlock
     /**
      * @return CharacterMetadata[]
      */
-    public function getCharacterList(): array
+    public function getCharacterList()
     {
         return $this->characterList;
     }
@@ -126,7 +126,7 @@ class ContentBlock
     /**
      * @return int
      */
-    public function getDepth(): int
+    public function getDepth()
     {
         return $this->depth;
     }
@@ -134,7 +134,7 @@ class ContentBlock
     /**
      * @param int $depth
      */
-    public function setDepth(int $depth)
+    public function setDepth($depth)
     {
         $this->depth = $depth;
     }

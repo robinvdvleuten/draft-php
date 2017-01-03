@@ -33,7 +33,7 @@ class ValidatorConfig
      *
      * @param array $config
      */
-    public function __construct($config)
+    public function __construct(array $config = null)
     {
         if (isset($config['content_block_max_depth'])) {
             $this->contentBlockMaxDepth = $config['content_block_max_depth'];
@@ -67,7 +67,7 @@ class ValidatorConfig
     /**
      * @return int
      */
-    public function getContentBlockMaxDepth(): int
+    public function getContentBlockMaxDepth()
     {
         return $this->contentBlockMaxDepth;
     }
@@ -83,7 +83,7 @@ class ValidatorConfig
     /**
      * @return array
      */
-    public function getContentBlockTypes(): array
+    public function getContentBlockTypes()
     {
         return $this->contentBlockTypes;
     }
@@ -99,7 +99,7 @@ class ValidatorConfig
     /**
      * @return array
      */
-    public function getInlineStyles(): array
+    public function getInlineStyles()
     {
         return $this->inlineStyles;
     }
@@ -115,7 +115,7 @@ class ValidatorConfig
     /**
      * @return array
      */
-    public function getEntityTypes(): array
+    public function getEntityTypes()
     {
         return $this->entityTypes;
     }
@@ -131,7 +131,7 @@ class ValidatorConfig
     /**
      * @return bool
      */
-    public function isValidateEntityKeyExists(): bool
+    public function isValidateEntityKeyExists()
     {
         return $this->validateEntityKeyExists;
     }
@@ -147,7 +147,7 @@ class ValidatorConfig
     /**
      * @return array
      */
-    public function getBlockTypesWithDepth(): array
+    public function getBlockTypesWithDepth()
     {
         return $this->blockTypesWithDepth;
     }
@@ -163,7 +163,7 @@ class ValidatorConfig
     /**
      * @return bool
      */
-    public function isIncrementalDepthSteps(): bool
+    public function isIncrementalDepthSteps()
     {
         return $this->incrementalDepthSteps;
     }

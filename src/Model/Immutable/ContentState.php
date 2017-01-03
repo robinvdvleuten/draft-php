@@ -22,12 +22,12 @@ class ContentState
     /**
      * @var ContentBlock[]
      */
-    private $blockMap;
+    private $blockMap = [];
 
     /**
      * @var DraftEntity[]
      */
-    private $entityMap;
+    private $entityMap = [];
 
     /**
      * @var int
@@ -314,6 +314,15 @@ class ContentState
     public function getEntityMap()
     {
         return $this->entityMap;
+    }
+
+    /**
+     * @param $key
+     * @param DraftEntity $entity
+     */
+    public function __setEntity($key, DraftEntity $entity)
+    {
+        $this->entityMap[$key] = $entity;
     }
 
     /**

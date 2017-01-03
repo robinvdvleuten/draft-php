@@ -38,7 +38,7 @@ class CharacterMetadata
     /**
      * @return array
      */
-    public function getStyle(): array
+    public function getStyle()
     {
         return $this->style;
     }
