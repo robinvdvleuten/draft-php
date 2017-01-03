@@ -19,15 +19,22 @@ class Validator
 {
     /**
      * @param ContentState $contentState
-     * @param ValidatorConfig $validatorConfig
-     * @param bool $tryAutoFix
+     * @param ValidatorConfig|null $validatorConfig
+     * @param null $tryAutoFix
      *
      * @return ContentState
      * @throws InvalidContentStateException
      */
-    public function validate(ContentState $contentState, ValidatorConfig $validatorConfig, $tryAutoFix = null)
+    public function validate(ContentState $contentState, ValidatorConfig $validatorConfig = null, $tryAutoFix = null)
     {
-        $tryAutoFix = is_null($tryAutoFix) ? true : $tryAutoFix;
+        if ($validatorConfig === null) {
+            $validatorConfig = new ValidatorConfig();
+        }
+
+        if ($tryAutoFix === null) {
+            $tryAutoFix = true;
+        }
+
         $lastDepth = 0;
 
         foreach ($contentState->getEntityMap() as $entity) {
