@@ -45,7 +45,7 @@ class Encoding
 
         $contentBlocks = array_map(function ($block) use ($fromStorageToLocal) {
             $key = isset($block['key']) ? $block['key'] : Keys::generateRandomKey();
-            $depth = isset($block['depth']) ? $block['depth'] : 0;
+            $depth = isset($block['depth']) ? intval($block['depth']) : 0;
             $inlineStyleRanges = isset($block['inlineStyleRanges']) ? $block['inlineStyleRanges'] : [];
             $entityRanges = isset($block['entityRanges']) ? $block['entityRanges'] : [];
 
