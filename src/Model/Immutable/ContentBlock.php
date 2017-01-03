@@ -56,7 +56,7 @@ class ContentBlock
         $this->type = $type;
         $this->text = $text;
         $this->characterList = $characterList;
-        $this->depth = $depth;
+        $this->setDepth($depth);
     }
 
     /**
@@ -136,6 +136,6 @@ class ContentBlock
      */
     public function setDepth($depth)
     {
-        $this->depth = $depth;
+        $this->depth = $depth < 0 ? 0 : intval($depth);
     }
 }

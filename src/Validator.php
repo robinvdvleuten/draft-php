@@ -2,7 +2,6 @@
 namespace Draft;
 
 use Draft\Exception\InvalidContentStateException;
-use Draft\Model\Entity\DraftEntity;
 use Draft\Model\Immutable\ContentState;
 
 /**
@@ -80,17 +79,6 @@ class Validator
 
         foreach ($contentState->getEntityMap() as $key => $entity) {
             $type = $entity->getType();
-            $mutability = $entity->getMutability();
-
-            $validMutability = [
-                DraftEntity::MUTABILITY_IMMUTABLE,
-                DraftEntity::MUTABILITY_MUTABLE,
-                DraftEntity::MUTABILITY_SEGMENTED,
-            ];
-
-            if (!in_array($mutability, $validMutability)) {
-                throw new InvalidContentStateException('Entity contains invalid mutability');
-            }
 
             if (!in_array($type, $validatorConfig->getEntityTypes())) {
                 if ($tryAutoFix) {
@@ -117,14 +105,6 @@ class Validator
 
             if (strstr($text, PHP_EOL) !== false) {
                 throw new InvalidContentStateException('Content block text in content state cannot contain new lines.');
-            }
-
-            if ($depth < 0) {
-                if ($tryAutoFix) {
-                    $contentBlock->setDepth(0);
-                } else {
-                    throw new InvalidContentStateException('Content block depth must equal or greater than 0.');
-                }
             }
 
             /** Block type if a type which supports depth */
