@@ -11,6 +11,7 @@
 
 namespace Draft;
 
+use Draft\Model\Entity\DraftEntity;
 use Draft\Model\Immutable\CharacterMetadata;
 use Draft\Model\Immutable\ContentBlock;
 use Draft\Model\Immutable\ContentState;
@@ -21,6 +22,101 @@ use Draft\Util\Keys;
  */
 class Encoding
 {
+    public static function convertToRaw(ContentState $contentState)
+    {
+        $raw = [];
+
+        $entityMap = [];
+
+        foreach ($contentState->getEntityMap() as $key => $entity) {
+            $entityMap[$key] = [
+                'type' => $entity->getType(),
+                'mutability' => $entity->getMutability(),
+                'data' => $entity->getData(),
+            ];
+        }
+        $raw['entityMap'] = $entityMap;
+
+        $raw['blocks'] = array_map(function(ContentBlock $contentBlock) {
+            $inlineStyleRanges = [];
+            $entityRanges = [];
+
+            $allStyles = [];
+            foreach ($contentBlock->getCharacterList() as $characterMetadata) {
+                $allStyles = array_unique(array_merge($allStyles, $characterMetadata->getStyle()));
+            }
+
+            $charList = $contentBlock->getCharacterList();
+
+            foreach ($allStyles as $style) {
+                $currentStyleRanges = [];
+
+                reset($charList);
+                do {
+                    $char = current($charList);
+                    $hasStyle = in_array($style, $char->getStyle());
+
+                    if ($hasStyle === false) continue;
+
+                    $styleRange = [
+                        'offset' => key($charList),
+                        'length' => null,
+                        'style' => $style,
+                    ];
+
+                    $styleLength = 0;
+                    do {
+                        $char = current($charList);
+                        $hasStyle = in_array($style, $char->getStyle());
+                        if ($hasStyle === false) break;
+                        $styleLength++;
+                    } while (next($charList) !== false);
+
+                    $styleRange['length'] = $styleLength;
+                    $currentStyleRanges[] = $styleRange;
+                } while (next($charList) !== false);
+
+                $inlineStyleRanges = array_merge($inlineStyleRanges, $currentStyleRanges);
+            }
+
+            do {
+                $char = current($charList);
+                if ($char === false) continue;
+
+                $entity = $char->getEntity();
+
+                if ($entity === null) continue;
+
+                $range = [
+                    'offset' => key($charList),
+                    'length' => null,
+                    'key' => intval($entity),
+                ];
+
+                $length = 0;
+                do {
+                    $char = current($charList);
+                    if (($char->getEntity() === $entity) === false) break;
+                    $length++;
+                } while (next($charList) !== false);
+
+                $range['length'] = $length;
+                $entityRanges[] = $range;
+            } while (next($charList) !== false);
+
+            return [
+                'key' => $contentBlock->getKey(),
+                'type' => $contentBlock->getType(),
+                'text' => $contentBlock->getText(),
+                'depth' => $contentBlock->getDepth(),
+                'inlineStyleRanges' => $inlineStyleRanges,
+                'entityRanges' => $entityRanges,
+            ];
+        }, $contentState->getBlocksAsArray());
+
+        return $raw;
+    }
+
     /**
      * @param array $rawState
      *
