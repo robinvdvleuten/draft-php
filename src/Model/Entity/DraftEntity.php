@@ -11,16 +11,22 @@
 
 namespace Draft\Model\Entity;
 
+use Draft\Exception\DraftException;
+
 /**
  * @author Robin van der Vleuten <robin@webstronauts.co>
  */
 class DraftEntity
 {
     const MUTABILITY_MUTABLE = 'MUTABLE';
-
     const MUTABILITY_IMMUTABLE = 'IMMUTABLE';
-
     const MUTABILITY_SEGMENTED = 'SEGMENTED';
+
+    const VALID_MUTABILITY = [
+        self::MUTABILITY_MUTABLE,
+        self::MUTABILITY_IMMUTABLE,
+        self::MUTABILITY_SEGMENTED
+    ];
 
     /**
      * @var string
@@ -38,14 +44,20 @@ class DraftEntity
     private $data;
 
     /**
-     * Constructor.
+     * DraftEntity constructor.
      *
-     * @param string $type
-     * @param string $mutability
-     * @param mixed  $data
+     * @param $type
+     * @param $mutability
+     * @param null $data
+     *
+     * @throws DraftException
      */
     public function __construct($type, $mutability, $data = null)
     {
+        if (!in_array($mutability, self::VALID_MUTABILITY)) {
+            throw new DraftException('Invalid mutability for entity.');
+        }
+
         $this->type = $type;
         $this->mutability = $mutability;
         $this->data = $data;

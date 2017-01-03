@@ -11,6 +11,7 @@
 
 namespace Draft;
 
+use Draft\Exception\InvalidRawException;
 use Draft\Model\Immutable\CharacterMetadata;
 use Draft\Model\Immutable\ContentBlock;
 use Draft\Model\Immutable\ContentState;
@@ -120,15 +121,27 @@ class Encoding
      * @param array $rawState
      *
      * @return ContentState
+     * @throws InvalidRawException
      */
     public static function convertFromRaw(array $rawState)
     {
         $fromStorageToLocal = [];
         $contentState = new ContentState();
 
-        if (isset($rawState['entityMap'])) {
-
+        if (isset($rawState['entityMap']) && is_array($rawState['entityMap'])) {
             foreach ($rawState['entityMap'] as $storageKey => $encodedEntity) {
+                if (!isset($encodedEntity['type']) || !is_string($encodedEntity['type']) || strlen($encodedEntity['type']) < 1) {
+                    throw new InvalidRawException('Entity type must be a string');
+                }
+
+                if (!isset($encodedEntity['mutability']) || !is_string($encodedEntity['mutability'])) {
+                    throw new InvalidRawException('Entity mutability must be a string');
+                }
+
+                if (!isset($encodedEntity['data']) || !is_array($encodedEntity['data'])) {
+                    $encodedEntity['data'] = [];
+                }
+
                 $entityKey = $contentState->createEntity(
                     $encodedEntity['type'],
                     $encodedEntity['mutability'],
@@ -138,24 +151,63 @@ class Encoding
             }
         }
 
+        if (!isset($rawState['blocks']) || !is_array($rawState['blocks'])) {
+            throw new InvalidRawException('Raw blocks must be an array.');
+        }
+
         $contentBlocks = array_map(function ($block) use ($fromStorageToLocal) {
-            $key = isset($block['key']) ? $block['key'] : Keys::generateRandomKey();
-            $depth = isset($block['depth']) ? intval($block['depth']) : 0;
-            $inlineStyleRanges = isset($block['inlineStyleRanges']) ? $block['inlineStyleRanges'] : [];
-            $entityRanges = isset($block['entityRanges']) ? $block['entityRanges'] : [];
+            $key = null;
+            $type = null;
+            $text = null;
+            $depth = 0;
+            $inlineStyleRanges = [];
+            $entityRanges = [];
+
+            if (isset($block['key']) && is_string($block['key']) && strlen($block['type']) > 0) {
+                $key = $block['key'];
+            } else {
+                $key = Keys::generateRandomKey();
+            }
+
+            if (isset($block['type']) && is_string($block['type']) && strlen($block['type']) > 0) {
+                $type = $block['type'];
+            } else {
+                throw new InvalidRawException('Content block type must be a string.');
+            }
+
+            if (isset($block['text']) && is_string($block['text'])) {
+                $text = $block['text'];
+            } else {
+                throw new InvalidRawException('Content block text must be a string.');
+            }
+
+            if (isset($block['depth']) && is_integer($block['depth']) && isset($block['depth']) >= 0) {
+                $depth = intval($block['depth']);
+            }
+
+            if (isset($block['inlineStyleRanges']) && is_array($block['inlineStyleRanges'])) {
+                $inlineStyleRanges = $block['inlineStyleRanges'];
+            }
+
+            if (isset($block['entityRanges']) && is_array($block['entityRanges'])) {
+                $entityRanges = $block['entityRanges'];
+            }
 
             $inlineStyles = Encoding::decodeInlineStyleRanges($block['text'], $inlineStyleRanges);
 
             $filteredEntityRanges = array_map(function ($entityRange) use ($fromStorageToLocal) {
                 return array_merge($entityRange, ['key' => $fromStorageToLocal[$entityRange['key']]]);
             }, array_filter($entityRanges, function ($entityRange) use ($fromStorageToLocal) {
+                if (!isset($entityRange['key']) || !is_numeric($entityRange['key'])) {
+                    throw new InvalidRawException('Entity range key must be an integer greater than zero.');
+                }
                 return isset($fromStorageToLocal[$entityRange['key']]);
             }));
 
             $entities = Encoding::decodeEntityRanges($block['text'], $filteredEntityRanges);
             $characterList = Encoding::createCharacterList($inlineStyles, $entities);
 
-            return new ContentBlock($key, $block['type'], $block['text'], $characterList, $depth);
+            return new ContentBlock($key, $type, $text, $characterList, $depth);
         }, $rawState['blocks']);
 
         $contentState->setBlockMap($contentBlocks);
@@ -176,11 +228,22 @@ class Encoding
         }, $inlineStyles, array_keys($inlineStyles));
     }
 
+    private static function validateRange($ranges)
+    {
+        if (!isset($ranges['offset']) || !is_int($ranges['offset']) || $ranges['offset'] < 0) {
+            throw new InvalidRawException('Range offset must be an integer greater or equal 0.');
+        }
+        if (!isset($ranges['length']) || !is_int($ranges['length']) || $ranges['length'] < 1) {
+            throw new InvalidRawException('Range length must be an integer greater or equal 1.');
+        }
+    }
+
     /**
      * @param $text
      * @param array|null $ranges
      *
      * @return array
+     * @throws InvalidRawException
      */
     public static function decodeEntityRanges($text, array $ranges = null)
     {
@@ -189,6 +252,8 @@ class Encoding
 
         if ($ranges) {
             foreach ($ranges as $range) {
+                self::validateRange($range);
+
                 $cursor = strlen(substr($text, 0, $range['offset']));
                 $end = $cursor + strlen(substr($text, $range['offset'], $range['length']));
 
@@ -207,6 +272,7 @@ class Encoding
      * @param array|null $ranges
      *
      * @return array
+     * @throws InvalidRawException
      */
     public static function decodeInlineStyleRanges($text, array $ranges = null)
     {
@@ -214,6 +280,12 @@ class Encoding
 
         if ($ranges) {
             foreach ($ranges as $range) {
+                self::validateRange($range);
+
+                if (!isset($range['style']) || !is_string($range['style']) || strlen($range['style']) < 1) {
+                    throw new InvalidRawException('Range style must be a not empty string.');
+                }
+
                 $cursor = strlen(substr($text, 0, $range['offset']));
                 $end = $cursor + strlen(substr($text, $range['offset'], $range['length']));
 

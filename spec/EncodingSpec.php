@@ -11,6 +11,8 @@
 
 namespace spec\Draft;
 
+use Draft\Exception\DraftException;
+use Draft\Exception\InvalidRawException;
 use Draft\Model\Entity\DraftEntity;
 use Draft\Model\Immutable\CharacterMetadata;
 use Draft\Model\Immutable\ContentBlock;
@@ -163,6 +165,183 @@ class EncodingSpec extends ObjectBehavior
         if ($theRaw !== $exceptedRaw) {
             throw new \Exception('Comparison failed.');
         }
+    }
+
+    public function it_throws_exception_on_invalid_raw()
+    {
+        $contentStateRaw = [
+            'entityMap' => [],
+            'blocks' => '', // <---
+        ];
+
+        $this::shouldThrow(InvalidRawException::class)
+            ->duringConvertFromRaw($contentStateRaw);
+    }
+
+    public function it_throws_exception_on_invalid_raw_2()
+    {
+        $contentStateRaw = [
+            'entityMap' => [
+                [
+                    'type' => 'LINK',
+                    'mutability' => 'NOT_EXIST', // <---
+                    'data' => [],
+                ],
+            ],
+            'blocks' => [],
+        ];
+
+        $this::shouldThrow(DraftException::class)
+            ->duringConvertFromRaw($contentStateRaw);
+    }
+
+    public function it_throws_exception_on_invalid_raw_3()
+    {
+        $contentStateRaw = [
+            'entityMap' => [
+                [
+                    'type' => '', // <---
+                    'mutability' => 'MUTABLE',
+                    'data' => [],
+                ],
+            ],
+            'blocks' => [],
+        ];
+
+        $this::shouldThrow(InvalidRawException::class)
+            ->duringConvertFromRaw($contentStateRaw);
+    }
+
+    public function it_throws_exception_on_invalid_raw_4()
+    {
+        $contentStateRaw = [
+            'blocks' => [
+                [
+                    'key' => 'abc',
+                    'type' => 'unstyled',
+                    'text' => 123, // <---
+                    'inlineStyleRanges' => [],
+                    'entityRanges' => [],
+                ],
+            ],
+        ];
+
+        $this::shouldThrow(InvalidRawException::class)
+            ->duringConvertFromRaw($contentStateRaw);
+    }
+
+    public function it_throws_exception_on_invalid_raw_5()
+    {
+        $contentStateRaw = [
+            'blocks' => [
+                [
+                    'key' => 'abc',
+                    'type' => '', // <---
+                    'text' => 'my text...',
+                    'inlineStyleRanges' => [],
+                    'entityRanges' => [],
+                ],
+            ],
+        ];
+
+        $this::shouldThrow(InvalidRawException::class)
+            ->duringConvertFromRaw($contentStateRaw);
+    }
+
+    public function it_throws_exception_on_invalid_raw_6()
+    {
+        $contentStateRaw = [
+            'blocks' => [
+                [
+                    'key' => 'abc',
+                    'type' => 'unstyled',
+                    'text' => ' ',
+                    'inlineStyleRanges' => [
+                        [
+                            'offset' => 0,
+                            'length' => 1,
+                            // no style // <---
+                        ],
+                    ],
+                    'entityRanges' => [],
+                ],
+            ],
+        ];
+
+        $this::shouldThrow(InvalidRawException::class)
+            ->duringConvertFromRaw($contentStateRaw);
+    }
+
+    public function it_throws_exception_on_invalid_raw_7()
+    {
+        $contentStateRaw = [
+            'blocks' => [
+                [
+                    'key' => 'abc',
+                    'type' => 'unstyled',
+                    'text' => ' ',
+                    'inlineStyleRanges' => [
+                        [
+                            'offset' => 0,
+                            'length' => 0, // <---
+                            'style' => 'BOLD',
+                        ],
+                    ],
+                    'entityRanges' => [],
+                ],
+            ],
+        ];
+
+        $this::shouldThrow(InvalidRawException::class)
+            ->duringConvertFromRaw($contentStateRaw);
+    }
+
+    public function it_throws_exception_on_invalid_raw_8()
+    {
+        $contentStateRaw = [
+            'blocks' => [
+                [
+                    'key' => 'abc',
+                    'type' => 'unstyled',
+                    'text' => ' ',
+                    'inlineStyleRanges' => [
+                        [
+                            'offset' => -1, // <---
+                            'length' => 1,
+                            'style' => 'BOLD',
+                        ],
+                    ],
+                    'entityRanges' => [],
+                ],
+            ],
+        ];
+
+        $this::shouldThrow(InvalidRawException::class)
+            ->duringConvertFromRaw($contentStateRaw);
+    }
+
+    public function it_throws_exception_on_invalid_raw_9()
+    {
+        $contentStateRaw = [
+            'blocks' => [
+                [
+                    'key' => 'abc',
+                    'type' => 'unstyled',
+                    'text' => ' ',
+                    'inlineStyleRanges' => [],
+                    'entityRanges' => [
+                        [
+                            'offset' => -1,
+                            'length' => 1,
+                            'key' => 'abc', // <---
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $this::shouldThrow(InvalidRawException::class)
+            ->duringConvertFromRaw($contentStateRaw);
     }
 
     public function it_converts_serialized_state_to_content_state()
