@@ -21,6 +21,16 @@ use PhpSpec\ObjectBehavior;
 
 class ValidatorSpec extends ObjectBehavior
 {
+    public function it_should_throw_exception_when_content_block_text_contains_newline()
+    {
+        $contentState = ContentState::createFromBlockArray([
+            new ContentBlock('a', 'unstyled', 'this is a re' . PHP_EOL . 'ally interesting', [], 0),
+        ]);
+
+        $this::shouldThrow(InvalidContentStateException::class)
+            ->duringValidate($contentState);
+    }
+
     public function it_should_remove_not_allowed_entity_from_entity_map()
     {
         $contentState = ContentState::createFromBlockArray([
@@ -91,11 +101,33 @@ class ValidatorSpec extends ObjectBehavior
         $contentState->getBlockForKey('g')->getDepth()->shouldReturn(0); // -400 -> 0
     }
 
+    public function it_should_remove_depth_from_unsupported_block_types()
+    {
+        $contentState = ContentState::createFromBlockArray([
+            new ContentBlock('a', 'ordered-list-item', '', [], 1),
+            new ContentBlock('b', 'unstyled', '', [], 1),
+            new ContentBlock('c', 'header-one', '', [], 1),
+            new ContentBlock('d', 'atomic', '', [], 1),
+            new ContentBlock('e', 'unordered-list-item', '', [], 1),
+            new ContentBlock('f', 'NOT_ALLOWED_BLOCK_TYPE', '', [], 1),
+        ]);
+
+        /** @var ContentState $contentState */
+        $contentState = $this::validate($contentState, new ValidatorConfig());
+
+        $contentState->getBlockForKey('a')->getDepth()->shouldReturn(1);
+        $contentState->getBlockForKey('b')->getDepth()->shouldReturn(0); // removed depth
+        $contentState->getBlockForKey('c')->getDepth()->shouldReturn(0); // removed depth
+        $contentState->getBlockForKey('d')->getDepth()->shouldReturn(0); // removed depth
+        $contentState->getBlockForKey('e')->getDepth()->shouldReturn(1);
+        $contentState->getBlockForKey('f')->getDepth()->shouldReturn(0); // removed depth
+    }
+
     public function it_should_remove_not_allowed_styles_from_character_meta_data()
     {
         $contentState = ContentState::createFromBlockArray([
             new ContentBlock('a', 'unstyled', 'a test text', [
-                new CharacterMetadata(['BOLD', 'NOT_ALLOWED', 'ITALIC', 'NOT_ALLWED_2'], null)
+                new CharacterMetadata(['BOLD', 'NOT_ALLOWED', 'ITALIC', 'NOT_ALLWED_2'])
             ], 0),
         ]);
 
@@ -109,7 +141,7 @@ class ValidatorSpec extends ObjectBehavior
     {
         $contentState = ContentState::createFromBlockArray([
             new ContentBlock('a', 'unstyled', 'a test text', [
-                new CharacterMetadata(['BOLD', 'NOT_ALLOWED', 'ITALIC', 'NOT_ALLWED_2'], 999)
+                new CharacterMetadata([], 999)
             ], 0),
         ]);
 
@@ -123,7 +155,7 @@ class ValidatorSpec extends ObjectBehavior
     {
         $contentState = ContentState::createFromBlockArray([
             new ContentBlock('a', 'unstyled', 'a test text', [
-                new CharacterMetadata(['BOLD'], 999)
+                new CharacterMetadata([], 999)
             ], 0),
         ]);
 
@@ -131,5 +163,39 @@ class ValidatorSpec extends ObjectBehavior
 
         $this::shouldThrow(InvalidContentStateException::class)
             ->duringValidate($contentState, new ValidatorConfig());
+    }
+
+    public function it_should_throw_exception_when_exceed_max_line_count()
+    {
+        $contentState = ContentState::createFromBlockArray([
+            new ContentBlock('a', 'unstyled', '', [], 0),
+            new ContentBlock('b', 'unstyled', '', [], 0),
+            new ContentBlock('c', 'unstyled', '', [], 0),
+        ]);
+
+        $this::shouldThrow(InvalidContentStateException::class)
+            ->duringValidate($contentState, new ValidatorConfig(['max_line_count' => 2]));
+    }
+
+    public function it_should_throw_exception_when_exceed_max_character_count()
+    {
+        $contentState = ContentState::createFromBlockArray([
+            new ContentBlock('a', 'unstyled', '1234567', [], 0),
+            new ContentBlock('b', 'unstyled', '890', [], 0),
+        ]);
+
+        $this::shouldThrow(InvalidContentStateException::class)
+            ->duringValidate($contentState, new ValidatorConfig(['max_character_count' => 10]));
+    }
+
+    public function it_should_throw_exception_when_exceed_max_word_count()
+    {
+        $contentState = ContentState::createFromBlockArray([
+            new ContentBlock('a', 'unstyled', 'this is a really interesting', [], 0),
+            new ContentBlock('b', 'unstyled', 'part of the world', [], 0),
+        ]);
+
+        $this::shouldThrow(InvalidContentStateException::class)
+            ->duringValidate($contentState, new ValidatorConfig(['max_word_count' => 8]));
     }
 }

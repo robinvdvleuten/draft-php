@@ -8,9 +8,25 @@ use Draft\Model\Immutable\ContentState;
 /**
  * See ValidatorConfig for configurable validations
  *
- * In Addition following is validated:
+ * Checks:
+ * - Validate the depth
+ *   - Is possible on target block type
+ *   - Depth raises in incremental steps
+ *   - Maximal depth
+ * - Allows only specific
+ *   - content block types
+ *   - entity types
+ *   - inline styles
+ * - Check for limits when set
+ *   - Character count
+ *   - Word count
+ *   - Line count
  * - ContentBlock text must not contains newline character
  * - CharacterMetadata entity must reference to an existing entity in the entity map
+ * - Check for valid entity mutability
+ *
+ * IDEAS:
+ * - clear not used entities from entity map (no reference in character meta data)
  *
  * Class Validator
  * @package Draft
@@ -33,6 +49,28 @@ class Validator
 
         if ($tryAutoFix === null) {
             $tryAutoFix = true;
+        }
+
+        $maxCharacterCount = $validatorConfig->getMaxCharacterCount();
+        $maxWordCount = $validatorConfig->getMaxWordCount();
+        $maxLineCount = $validatorConfig->getMaxLineCount();
+
+        if ($maxCharacterCount !== null) {
+            if (strlen($contentState->getPlainText()) > $maxCharacterCount) {
+                throw new InvalidContentStateException('The content contains more character than allowed.');
+            }
+        }
+
+        if ($maxWordCount !== null) {
+            if (str_word_count($contentState->getPlainText()) > $maxWordCount) {
+                throw new InvalidContentStateException('The content contains more lines than allowed.');
+            }
+        }
+
+        if ($maxLineCount !== null) {
+            if (count($contentState->getBlockMap()) > $maxLineCount) {
+                throw new InvalidContentStateException('The content contains more lines than allowed.');
+            }
         }
 
         $lastDepth = 0;
@@ -93,12 +131,14 @@ class Validator
                         throw new InvalidContentStateException('Content block maximal depth exceeded.');
                     }
                 }
-                if ($depth > $lastDepth + 1) {
-                    if ($tryAutoFix) {
-                        $contentBlock->setDepth($lastDepth + 1);
-                        $depth = $contentBlock->getDepth();
-                    } else {
-                        throw new InvalidContentStateException('Content block depth must raise in incremental steps.');
+                if ($validatorConfig->isIncrementalDepthSteps()) {
+                    if ($depth > $lastDepth + 1) {
+                        if ($tryAutoFix) {
+                            $contentBlock->setDepth($lastDepth + 1);
+                            $depth = $contentBlock->getDepth();
+                        } else {
+                            throw new InvalidContentStateException('Content block depth must raise in incremental steps.');
+                        }
                     }
                 }
             } else if ($depth < 0) {

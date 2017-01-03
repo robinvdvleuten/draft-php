@@ -19,14 +19,20 @@ class ValidatorConfig
     /** @var array */
     private $entityTypes = []; // Auto fixable: remove not allowed entity from character and from entity map
 
-    /** @var bool */
-    private $validateEntityKeyExists = true; // NOT auto fixable - @TODO: not used yet - always true.
-
     /** @var array */
     private $blockTypesWithDepth = Defaults::LIST_BLOCK_TYPES; // Auto fixable: set depth to 0
 
     /** @var bool */
     private $incrementalDepthSteps = true; // Auto fixable: set depth to biggest possible depth
+
+    /** @var int|null */
+    private $maxCharacterCount = null;
+
+    /** @var int|null */
+    private $maxWordCount = null;
+
+    /** @var int|null */
+    private $maxLineCount = null;
 
     /**
      * ValidatorConfig constructor.
@@ -36,7 +42,7 @@ class ValidatorConfig
     public function __construct(array $config = null)
     {
         if (isset($config['content_block_max_depth'])) {
-            $this->contentBlockMaxDepth = $config['content_block_max_depth'];
+            $this->contentBlockMaxDepth = intval($config['content_block_max_depth']);
         }
 
         if (isset($config['content_block_types'])) {
@@ -51,16 +57,24 @@ class ValidatorConfig
             $this->entityTypes = $config['entity_types'];
         }
 
-        if (isset($config['validate_entity_key_exists'])) {
-            $this->validateEntityKeyExists = $config['validate_entity_key_exists'];
-        }
-
-        if (isset($config['block_types_With_depth'])) {
-            $this->blockTypesWithDepth = $config['block_types_With_depth'];
+        if (isset($config['block_types_with_depth'])) {
+            $this->blockTypesWithDepth = $config['block_types_with_depth'];
         }
 
         if (isset($config['incremental_depth_steps'])) {
-            $this->incrementalDepthSteps = $config['incremental_depth_steps'];
+            $this->incrementalDepthSteps = boolval($config['incremental_depth_steps']);
+        }
+
+        if (isset($config['max_character_count'])) {
+            $this->maxCharacterCount = intval($config['max_character_count']);
+        }
+
+        if (isset($config['max_word_count'])) {
+            $this->maxWordCount = intval($config['max_word_count']);
+        }
+
+        if (isset($config['max_line_count'])) {
+            $this->maxLineCount = intval($config['max_line_count']);
         }
     }
 
@@ -129,22 +143,6 @@ class ValidatorConfig
     }
 
     /**
-     * @return bool
-     */
-    public function isValidateEntityKeyExists()
-    {
-        return $this->validateEntityKeyExists;
-    }
-
-    /**
-     * @param bool $validateEntityKeyExists
-     */
-    public function setValidateEntityKeyExists(bool $validateEntityKeyExists)
-    {
-        $this->validateEntityKeyExists = $validateEntityKeyExists;
-    }
-
-    /**
      * @return array
      */
     public function getBlockTypesWithDepth()
@@ -174,5 +172,29 @@ class ValidatorConfig
     public function setIncrementalDepthSteps(bool $incrementalDepthSteps)
     {
         $this->incrementalDepthSteps = $incrementalDepthSteps;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getMaxCharacterCount()
+    {
+        return $this->maxCharacterCount;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getMaxWordCount()
+    {
+        return $this->maxWordCount;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getMaxLineCount()
+    {
+        return $this->maxLineCount;
     }
 }
