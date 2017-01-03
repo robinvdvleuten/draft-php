@@ -23,16 +23,6 @@ class DraftEntity
     const MUTABILITY_SEGMENTED = 'SEGMENTED';
 
     /**
-     * @var int
-     */
-    private static $instanceKey = 0;
-
-    /**
-     * @var array
-     */
-    private static $instances = [];
-
-    /**
      * @var string
      */
     private $type;
@@ -61,55 +51,6 @@ class DraftEntity
         $this->data = $data;
     }
 
-    public static function create($type, $mutability, $data = null)
-    {
-        return self::add(new DraftEntity($type, $mutability, $data));
-    }
-
-    public static function set($key, DraftEntity $instance)
-    {
-        self::$instances[$key] = $instance;
-    }
-
-    public static function add(DraftEntity $instance)
-    {
-        $key = (string) ++self::$instanceKey;
-        self::$instances[$key] = $instance;
-
-        return $key;
-    }
-
-    /**
-     * @return array
-     */
-    public static function getEntityMap()
-    {
-        return self::$instances;
-    }
-
-    /**
-     * @param $key
-     *
-     * @return DraftEntity
-     */
-    public static function get($key)
-    {
-        if (!isset(self::$instances[$key])) {
-            throw new \RuntimeException('Unknown DraftEntity key.');
-        }
-
-        return self::$instances[$key];
-    }
-
-    /**
-     * @return mixed
-     */
-    public static function getLastCreatedKey()
-    {
-        end(self::$instances);
-        return key(self::$instances);
-    }
-
     /**
      * @return string
      */
@@ -132,13 +73,5 @@ class DraftEntity
     public function getData()
     {
         return $this->data;
-    }
-
-    /**
-     * @param mixed $data
-     */
-    public function setData($data)
-    {
-        $this->data = $data;
     }
 }

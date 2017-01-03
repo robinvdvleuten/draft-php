@@ -25,6 +25,16 @@ class ContentState
     private $blockMap;
 
     /**
+     * @var DraftEntity[]
+     */
+    private $entityMap;
+
+    /**
+     * @var int
+     */
+    private $entityMapCurrentKey = 0;
+
+    /**
      * @var SelectionState
      */
     private $selectionBefore;
@@ -156,9 +166,9 @@ class ContentState
      *
      * @return string|null
      */
-    public function getKeyBefore(string $key)
+    public function getKeyBefore($key)
     {
-        return $this->getRelativeKey($key, 'prev');
+        return $this->getRelativeBlock($key, 'prev');
     }
 
     /**
@@ -166,9 +176,9 @@ class ContentState
      *
      * @return string|null
      */
-    public function getKeyAfter(string $key)
+    public function getKeyAfter($key)
     {
-        return $this->getRelativeKey($key, 'next');
+        return $this->getRelativeBlock($key, 'next');
     }
 
     /**
@@ -176,9 +186,9 @@ class ContentState
      *
      * @return ContentBlock|null
      */
-    public function getBlockBefore(string $key)
+    public function getBlockBefore($key)
     {
-        return $this->getRelativeKey($key, 'prev', true);
+        return $this->getRelativeBlock($key, 'prev', true);
     }
 
     /**
@@ -186,9 +196,9 @@ class ContentState
      *
      * @return ContentBlock|null
      */
-    public function getBlockAfter(string $key)
+    public function getBlockAfter($key)
     {
-        return $this->getRelativeKey($key, 'next', true);
+        return $this->getRelativeBlock($key, 'next', true);
     }
 
     /**
@@ -198,7 +208,7 @@ class ContentState
      *
      * @return ContentBlock|mixed|null|string
      */
-    private function getRelativeKey(string $key, string $relative, bool $return_value = false)
+    private function getRelativeBlock($key, $relative, $return_value = false)
     {
         $map = $this->blockMap;
         reset($map);
@@ -248,51 +258,54 @@ class ContentState
     }
 
     /**
+     * @param DraftEntity $entity
+     *
+     * @return string
+     */
+    public function addEntity(DraftEntity $entity)
+    {
+        $key = (string) ++$this->entityMapCurrentKey;
+        $this->entityMap[$key] = $entity;
+        return $key;
+    }
+
+    /**
      * @param string $type
      * @param $mutability
      * @param array|null $data
      */
-    public function createEntity(string $type, $mutability, array $data = null)
+    public function createEntity($type, $mutability, array $data = null)
     {
-        DraftEntity::create($type, $mutability, $data);
+        $this->addEntity(new DraftEntity($type, $mutability, $data));
     }
 
     /**
-     * @param string $key
+     * @param $key
      * @param array $newData
      */
-    public function replaceEntityData(string $key, array $newData)
+    public function replaceEntityData($key, array $newData)
     {
-        $entity = DraftEntity::get($key);
-        $entity->setData($newData);
-        DraftEntity::set($key, $entity);
-    }
-
-    /**
-     * @param $entity
-     */
-    public function addEntity($entity)
-    {
-        $entity = new DraftEntity($entity['type'], $entity['mutability'], $entity['data']);
-        DraftEntity::add($entity);
+        $currentEntity = $this->getEntity($key);
+        $newEntity = new DraftEntity($currentEntity->getType(), $currentEntity->getMutability(), $newData);
+        $this->entityMap[$key] = $newEntity;
     }
 
     /**
      * @param string $key
      *
-     * @return DraftEntity
+     * @return DraftEntity|null
      */
-    public function getEntity(string $key)
+    public function getEntity($key)
     {
-        return DraftEntity::get($key);
+        return $this->entityMap[$key] ?? null;
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getLastCreatedEntityKey()
     {
-        return DraftEntity::getLastCreatedKey();
+        return $this->entityMapCurrentKey;
     }
 
     /**
@@ -300,6 +313,6 @@ class ContentState
      */
     public function getEntityMap()
     {
-        return DraftEntity::getEntityMap();
+        return $this->entityMap;
     }
 }
