@@ -11,7 +11,6 @@
 
 namespace Draft;
 
-use Draft\Model\Entity\DraftEntity;
 use Draft\Model\Immutable\CharacterMetadata;
 use Draft\Model\Immutable\ContentBlock;
 use Draft\Model\Immutable\ContentState;

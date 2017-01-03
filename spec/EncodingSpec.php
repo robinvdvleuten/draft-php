@@ -11,6 +11,10 @@
 
 namespace spec\Draft;
 
+use Draft\Model\Entity\DraftEntity;
+use Draft\Model\Immutable\CharacterMetadata;
+use Draft\Model\Immutable\ContentBlock;
+use Draft\Model\Immutable\ContentState;
 use PhpSpec\ObjectBehavior;
 
 /**
@@ -18,11 +22,157 @@ use PhpSpec\ObjectBehavior;
  */
 class EncodingSpec extends ObjectBehavior
 {
-    public function it_converts_serialized_state_to_block_array()
+    public function it_converts_content_state_to_raw()
+    {
+        $contentState = new ContentState([
+            new ContentBlock('a', 'unstyled', 'This is a very proud test.', [
+                new CharacterMetadata(['BOLD'], 0), // 1 T
+                new CharacterMetadata([], 0), // 2 h
+                new CharacterMetadata([], 0), // 3 i
+                new CharacterMetadata([], 0), // 4 s
+                new CharacterMetadata([], null), // 5
+                new CharacterMetadata(['BOLD'], null), // 6 i
+                new CharacterMetadata(['BOLD'], null), // 7 s
+                new CharacterMetadata([], null), // 8
+                new CharacterMetadata(['BOLD'], null), // 9 a
+                new CharacterMetadata([], null), // 10
+                new CharacterMetadata(['BOLD', 'ITALIC'], null), // 11 v
+                new CharacterMetadata(['BOLD', 'ITALIC'], null), // 12 e
+                new CharacterMetadata(['ITALIC', 'BOLD'], null), // 13 r
+                new CharacterMetadata(['ITALIC', 'BOLD'], null), // 14 y
+                new CharacterMetadata([], null), // 15
+                new CharacterMetadata(['BOLD'], null), // 16 p
+                new CharacterMetadata(['BOLD', 'ITALIC'], null), // 17 r
+                new CharacterMetadata(['BOLD', 'ITALIC', 'UNDERLINE'], null), // 18 o
+                new CharacterMetadata([], null), // 19 u
+                new CharacterMetadata([], null), // 20 d
+                new CharacterMetadata([], null), // 21
+                new CharacterMetadata([], 0), // 22 t
+                new CharacterMetadata([], 0), // 23 e
+                new CharacterMetadata([], 0), // 24 s
+                new CharacterMetadata([], 0), // 25 t
+                new CharacterMetadata(['BOLD'], null), // 26 .
+            ], 0),
+            new ContentBlock('b', 'atomic', ' ', [
+                new CharacterMetadata([], 1),
+            ], 0),
+        ]);
+
+        $contentState->__setEntity(0, new DraftEntity('IMAGE', DraftEntity::MUTABILITY_IMMUTABLE, [
+            'src' => 'http://google.de/image.png',
+        ]));
+
+        $contentState->__setEntity(1, new DraftEntity('LINK', DraftEntity::MUTABILITY_IMMUTABLE, [
+            'url' => 'http://google.de',
+        ]));
+
+        $exceptedRawData = [
+            'entityMap' => [
+                0 => [
+                    'type' => 'IMAGE',
+                    'mutability' => 'IMMUTABLE',
+                    'data' => [
+                        'src' => 'http://google.de/image.png',
+                    ],
+                ],
+                1 => [
+                    'type' => 'LINK',
+                    'mutability' => 'IMMUTABLE',
+                    'data' => [
+                        'url' => 'http://google.de',
+                    ],
+                ],
+            ],
+            'blocks' => [
+                [
+                    'key' => 'a',
+                    'type' => 'unstyled',
+                    'text' => 'This is a very proud test.',
+                    'depth' => 0,
+                    'inlineStyleRanges' => [
+                        [
+                            'offset' => 0,
+                            'length' => 1,
+                            'style' => 'BOLD',
+                        ],
+                        [
+                            'offset' => 5,
+                            'length' => 2,
+                            'style' => 'BOLD',
+                        ],
+                        [
+                            'offset' => 8,
+                            'length' => 1,
+                            'style' => 'BOLD',
+                        ],
+                        [
+                            'offset' => 10,
+                            'length' => 4,
+                            'style' => 'BOLD',
+                        ],
+                        [
+                            'offset' => 15,
+                            'length' => 3,
+                            'style' => 'BOLD',
+                        ],
+                        [
+                            'offset' => 25,
+                            'length' => 1,
+                            'style' => 'BOLD',
+                        ],
+                        [
+                            'offset' => 10,
+                            'length' => 4,
+                            'style' => 'ITALIC',
+                        ],
+                        [
+                            'offset' => 16,
+                            'length' => 2,
+                            'style' => 'ITALIC',
+                        ],
+                        [
+                            'offset' => 17,
+                            'length' => 1,
+                            'style' => 'UNDERLINE',
+                        ],
+                    ],
+                    'entityRanges' => [],
+                ],
+                [
+                    'key' => 'b',
+                    'type' => 'atomic',
+                    'text' => ' ',
+                    'depth' => 0,
+                    'inlineStyleRanges' => [],
+                    'entityRanges' => [
+                        [
+                            'offset' => 0,
+                            'length' => 1,
+                            'key' => 1,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $raw = $this::convertToRaw($contentState);
+
+        $theRaw = json_encode($raw->getWrappedObject());
+        $exceptedRaw = json_encode($exceptedRawData);
+
+        if ($theRaw !== $exceptedRaw) {
+            throw new \Exception('Comparison failed.');
+        }
+    }
+
+    public function it_converts_serialized_state_to_content_state()
     {
         $rawState = json_decode('{"entityMap":{},"blocks":[{"key":"33nh8","text":"a","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[]}]}', true);
 
-        $blocks = $this::convertFromRaw($rawState);
+        /** @var ContentState $contentState */
+        $contentState = $this::convertFromRaw($rawState);
+
+        $blocks = $contentState->getBlocksAsArray();
         $blocks->shouldHaveCount(1);
 
         $block = $blocks[0];
@@ -42,11 +192,14 @@ class EncodingSpec extends ObjectBehavior
         $characterMetadata->getEntity()->shouldReturn(null);
     }
 
-    public function it_converts_serialized_state_with_entities_to_block_array()
+    public function it_converts_serialized_state_with_entities_to_content_state()
     {
         $rawState = json_decode('{"entityMap":{"0":{"type":"LINK","mutability":"MUTABLE","data":{"url":"/","rel":null,"title":"hi","extra":"foo"}}},"blocks":[{"key":"8r91j","text":"a","type":"unstyled","depth":0,"inlineStyleRanges":[{"offset":0,"length":1,"style":"ITALIC"}],"entityRanges":[{"offset":0,"length":1,"key":0}]}]}', true);
 
-        $blocks = $this::convertFromRaw($rawState);
+        /** @var ContentState $contentState */
+        $contentState = $this::convertFromRaw($rawState);
+
+        $blocks = $contentState->getBlocksAsArray();
         $blocks->shouldHaveCount(1);
 
         $block = $blocks[0];
