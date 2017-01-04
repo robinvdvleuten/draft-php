@@ -22,7 +22,6 @@ use Draft\Model\Immutable\ContentState;
  *   - Line count
  * - ContentBlock text must not contains newline character
  * - CharacterMetadata entity must reference to an existing entity in the entity map
- * - Check for valid entity mutability
  *
  * IDEAS:
  * - clear not used entities from entity map (no reference in character meta data)
