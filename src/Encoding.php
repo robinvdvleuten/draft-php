@@ -201,6 +201,9 @@ class Encoding
                 if (!isset($entityRange['key']) || !is_numeric($entityRange['key'])) {
                     throw new InvalidRawException('Entity range key must be an integer greater than zero.');
                 }
+                if (!isset($fromStorageToLocal[$entityRange['key']])) {
+                    throw new InvalidRawException('Entity range key reference to entity map is invalid.');
+                }
                 return isset($fromStorageToLocal[$entityRange['key']]);
             }));
 

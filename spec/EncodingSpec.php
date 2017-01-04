@@ -344,6 +344,30 @@ class EncodingSpec extends ObjectBehavior
             ->duringConvertFromRaw($contentStateRaw);
     }
 
+    public function it_throws_exception_on_invalid_raw_10()
+    {
+        $contentStateRaw = [
+            'blocks' => [
+                [
+                    'key' => 'abc',
+                    'type' => 'unstyled',
+                    'text' => ' ',
+                    'inlineStyleRanges' => [],
+                    'entityRanges' => [
+                        [
+                            'offset' => 0,
+                            'length' => 1,
+                            'key' => 1, // <---
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $this::shouldThrow(InvalidRawException::class)
+            ->duringConvertFromRaw($contentStateRaw);
+    }
+
     public function it_converts_serialized_state_to_content_state()
     {
         $rawState = json_decode('{"entityMap":{},"blocks":[{"key":"33nh8","text":"a","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[]}]}', true);
