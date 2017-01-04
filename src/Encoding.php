@@ -234,7 +234,6 @@ class Encoding
     private static function validateRange($ranges)
     {
         if (!isset($ranges['offset']) || !is_numeric($ranges['offset']) || $ranges['offset'] < 0) {
-            sd($ranges['offset']);
             throw new InvalidRawException('Range offset must be an integer greater or equal 0.');
         }
         if (!isset($ranges['length']) || !is_numeric($ranges['length']) || $ranges['length'] < 1) {
