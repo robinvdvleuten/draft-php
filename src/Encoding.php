@@ -181,8 +181,8 @@ class Encoding
                 throw new InvalidRawException('Content block text must be a string.');
             }
 
-            if (isset($block['depth']) && is_integer($block['depth']) && isset($block['depth']) >= 0) {
-                $depth = intval($block['depth']);
+            if (isset($block['depth']) && is_integer($block['depth']) && $block['depth'] >= 0) {
+                $depth = $block['depth'];
             }
 
             if (isset($block['inlineStyleRanges']) && is_array($block['inlineStyleRanges'])) {
