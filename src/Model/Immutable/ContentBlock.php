@@ -136,6 +136,7 @@ class ContentBlock
      */
     public function setDepth($depth)
     {
-        $this->depth = $depth < 0 ? 0 : intval($depth);
+        $depth = intval($depth);
+        $this->depth = $depth < 0 ? 0 : $depth;
     }
 }
