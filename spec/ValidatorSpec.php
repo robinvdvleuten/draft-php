@@ -163,20 +163,6 @@ class ValidatorSpec extends ObjectBehavior
         $contentState->getFirstBlock()->getCharacterList()[0]->getEntity()->shouldBeNull();
     }
 
-    public function it_should_throw_exception_if_entity_mutability_not_exists()
-    {
-        $contentState = ContentState::createFromBlockArray([
-            new ContentBlock('a', 'unstyled', 'a test text', [
-                new CharacterMetadata([], 999)
-            ], 0),
-        ]);
-
-        $contentState->__setEntity(999, new DraftEntity('LINK', 'NOT_EXISTING_MUTABILITY'));
-
-        $this::shouldThrow(InvalidContentStateException::class)
-            ->duringValidate($contentState, new ValidatorConfig());
-    }
-
     public function it_should_throw_exception_when_exceed_max_line_count()
     {
         $contentState = ContentState::createFromBlockArray([
