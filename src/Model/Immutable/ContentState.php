@@ -216,8 +216,9 @@ class ContentState
      *
      * @return ContentBlock|mixed|null|string
      */
-    private function getRelativeBlock($key, $relative, $returnValue = false)
+    private function getRelativeBlock($key, $relative, $returnValue = null)
     {
+        $returnValue = $returnValue === null ? false : $returnValue;
         $map = $this->blockMap;
         reset($map);
 
