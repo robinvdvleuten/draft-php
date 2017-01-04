@@ -21,6 +21,24 @@ use PhpSpec\ObjectBehavior;
 
 class ValidatorSpec extends ObjectBehavior
 {
+    public function it_should_remove_unused_entities_from_entity_map()
+    {
+        $contentState = ContentState::createFromBlockArray([
+            new ContentBlock('a', 'unstyled', 'text', [
+                new CharacterMetadata([], '1'),
+                new CharacterMetadata([], '3'),
+            ], 0),
+        ]);
+
+        $contentState->createEntity('LINK', DraftEntity::MUTABILITY_IMMUTABLE);
+        $contentState->createEntity('LINK', DraftEntity::MUTABILITY_IMMUTABLE);
+        $contentState->createEntity('LINK', DraftEntity::MUTABILITY_IMMUTABLE);
+
+        $contentState = $this::validate($contentState, ['entity_types' => ['LINK']]);
+
+        $contentState->getEntityMap()->shouldHaveCount(2);
+    }
+
     public function it_should_throw_exception_when_content_block_text_contains_newline()
     {
         $contentState = ContentState::createFromBlockArray([
@@ -35,7 +53,9 @@ class ValidatorSpec extends ObjectBehavior
     {
         $contentState = ContentState::createFromBlockArray([
             new ContentBlock('a', 'NOT_ALLOWED_BLOCK_TYPE', 'a test text', [
-                new CharacterMetadata(['BOLD'], 0)
+                new CharacterMetadata(['BOLD'], 1),
+                new CharacterMetadata(['BOLD'], 2),
+                new CharacterMetadata(['BOLD'], 3)
             ], 0),
         ]);
 

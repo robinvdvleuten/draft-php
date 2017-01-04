@@ -20,8 +20,12 @@ use Draft\Model\Immutable\ContentState;
  *   - Character count
  *   - Word count
  *   - Line count
- * - ContentBlock text must not contains newline character
- * - CharacterMetadata entity must reference to an existing entity in the entity map
+ * - ContentBlock
+ *   - text must not contains newline character
+ * - CharacterMetadata
+ *   - entity must reference to an existing entity in the entity map
+ * - EntityMap
+ *   - remove not referenced entities
  *
  * IDEAS:
  * - clear not used entities from entity map (no reference in character meta data)
@@ -50,6 +54,8 @@ class Validator
         if ($tryAutoFix === null) {
             $tryAutoFix = true;
         }
+
+        $referencedEntityKeys = [];
 
         $maxCharacterCount = $validatorConfig->getMaxCharacterCount();
         $maxWordCount = $validatorConfig->getMaxWordCount();
@@ -158,6 +164,8 @@ class Validator
                         } else {
                             throw new InvalidContentStateException('Character metadata contains not existing entity.');
                         }
+                    } else {
+                        $referencedEntityKeys[] = $characterEntityKey;
                     }
                 }
 
@@ -180,6 +188,13 @@ class Validator
 
             $lastDepth = $depth;
             $lastBlockType = $type;
+        }
+
+        $entityMapKeys = array_keys($contentState->getEntityMap());
+        $notReferencedEntityKeys = array_diff($entityMapKeys, $referencedEntityKeys);
+
+        foreach ($notReferencedEntityKeys as $entityKey) {
+            $contentState->__removeEntity($entityKey);
         }
 
         return $contentState;
