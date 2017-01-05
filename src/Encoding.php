@@ -274,12 +274,17 @@ class Encoding
         }, $inlineStyles, array_keys($inlineStyles));
     }
 
-    private static function assertRange($ranges)
+    /**
+     * @param $range
+     *
+     * @throws InvalidRawException
+     */
+    private static function assertRange($range)
     {
-        if (!isset($ranges['offset']) || !is_numeric($ranges['offset']) || $ranges['offset'] < 0) {
+        if (!isset($range['offset']) || !is_numeric($range['offset']) || $range['offset'] < 0) {
             throw new InvalidRawException('Range offset must be an integer greater or equal 0.');
         }
-        if (!isset($ranges['length']) || !is_numeric($ranges['length']) || $ranges['length'] < 1) {
+        if (!isset($range['length']) || !is_numeric($range['length']) || $range['length'] < 1) {
             throw new InvalidRawException('Range length must be an integer greater or equal 1.');
         }
     }
