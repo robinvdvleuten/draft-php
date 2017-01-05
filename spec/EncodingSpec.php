@@ -28,35 +28,35 @@ class EncodingSpec extends ObjectBehavior
     {
         $contentState = new ContentState([
             new ContentBlock('a', 'unstyled', 'This is a very proud test.', [
-                new CharacterMetadata(['BOLD'], 0), // 1 T
-                new CharacterMetadata([], 0), // 2 h
-                new CharacterMetadata([], 0), // 3 i
-                new CharacterMetadata([], 0), // 4 s
-                new CharacterMetadata([], null), // 5
-                new CharacterMetadata(['BOLD'], null), // 6 i
-                new CharacterMetadata(['BOLD'], null), // 7 s
-                new CharacterMetadata([], null), // 8
-                new CharacterMetadata(['BOLD'], null), // 9 a
-                new CharacterMetadata([], null), // 10
-                new CharacterMetadata(['BOLD', 'ITALIC'], null), // 11 v
-                new CharacterMetadata(['BOLD', 'ITALIC'], null), // 12 e
-                new CharacterMetadata(['ITALIC', 'BOLD'], null), // 13 r
-                new CharacterMetadata(['ITALIC', 'BOLD'], null), // 14 y
-                new CharacterMetadata([], null), // 15
-                new CharacterMetadata(['BOLD'], null), // 16 p
-                new CharacterMetadata(['BOLD', 'ITALIC'], null), // 17 r
+                new CharacterMetadata(['BOLD'], 0),                 // 1 T / ENTITY 0 / recognize character in first character
+                new CharacterMetadata([], 0),                       // 2 h / ENTITY 0
+                new CharacterMetadata([], 0),                       // 3 i / ENTITY 0
+                new CharacterMetadata([], 0),                       // 4 s / ENTITY 0
+                new CharacterMetadata([], null),                    // 5' '
+                new CharacterMetadata(['BOLD'], null),              // 6 i
+                new CharacterMetadata(['BOLD'], null),              // 7 s
+                new CharacterMetadata([], null),                    // 8' '
+                new CharacterMetadata(['BOLD'], null),              // 9 a
+                new CharacterMetadata([], null),                    // 10' '
+                new CharacterMetadata(['BOLD', 'ITALIC'], null),    // 11 v
+                new CharacterMetadata(['BOLD', 'ITALIC'], null),    // 12 e
+                new CharacterMetadata(['ITALIC', 'BOLD'], null),    // 13 r
+                new CharacterMetadata(['ITALIC', 'BOLD'], null),    // 14 y
+                new CharacterMetadata([], null),                    // 15' '
+                new CharacterMetadata(['BOLD'], null),              // 16 p
+                new CharacterMetadata(['BOLD', 'ITALIC'], null),    // 17 r
                 new CharacterMetadata(['BOLD', 'ITALIC', 'UNDERLINE'], null), // 18 o
-                new CharacterMetadata([], null), // 19 u
-                new CharacterMetadata([], null), // 20 d
-                new CharacterMetadata([], null), // 21
-                new CharacterMetadata([], 0), // 22 t
-                new CharacterMetadata([], 0), // 23 e
-                new CharacterMetadata([], 0), // 24 s
-                new CharacterMetadata([], 0), // 25 t
-                new CharacterMetadata(['BOLD'], null), // 26 .
+                new CharacterMetadata([], null),                    // 19 u
+                new CharacterMetadata([], null),                    // 20 d
+                new CharacterMetadata([], null),                    // 21' '
+                new CharacterMetadata([], 0),                       // 22 t / ENTITY 0
+                new CharacterMetadata([], 0),                       // 23 e / ENTITY 0
+                new CharacterMetadata([], 0),                       // 24 s / ENTITY 0
+                new CharacterMetadata([], 0),                       // 25 t / ENTITY 0
+                new CharacterMetadata(['BOLD'], null), // 26 . - recognize style in last character
             ], 0),
             new ContentBlock('b', 'atomic', ' ', [
-                new CharacterMetadata([], 1),
+                new CharacterMetadata([], 1),                       // 25' ' / ENTITY 1
             ], 0),
         ]);
 
@@ -138,7 +138,18 @@ class EncodingSpec extends ObjectBehavior
                             'style' => 'UNDERLINE',
                         ],
                     ],
-                    'entityRanges' => [],
+                    'entityRanges' => [
+                        0 => [
+                            'offset' => 0,
+                            'length' => 4,
+                            'key' => 0,
+                        ],
+                        1 => [
+                            'offset' => 21,
+                            'length' => 4,
+                            'key' => 0,
+                        ],
+                    ],
                 ],
                 [
                     'key' => 'b',
@@ -147,7 +158,7 @@ class EncodingSpec extends ObjectBehavior
                     'depth' => 0,
                     'inlineStyleRanges' => [],
                     'entityRanges' => [
-                        [
+                        0 => [
                             'offset' => 0,
                             'length' => 1,
                             'key' => 1,
@@ -167,7 +178,7 @@ class EncodingSpec extends ObjectBehavior
         }
     }
 
-    public function it_throws_exception_on_invalid_raw()
+    public function it_throws_exception_on_invalid_raw_if_block_is_string()
     {
         $contentStateRaw = [
             'entityMap' => [],
@@ -178,7 +189,7 @@ class EncodingSpec extends ObjectBehavior
             ->duringConvertFromRaw($contentStateRaw);
     }
 
-    public function it_throws_exception_on_invalid_raw_2()
+    public function it_throws_exception_on_invalid_raw_if_mutability_not_exists()
     {
         $contentStateRaw = [
             'entityMap' => [
@@ -195,7 +206,7 @@ class EncodingSpec extends ObjectBehavior
             ->duringConvertFromRaw($contentStateRaw);
     }
 
-    public function it_throws_exception_on_invalid_raw_3()
+    public function it_throws_exception_on_invalid_raw_if_entity_type_is_empty_string()
     {
         $contentStateRaw = [
             'entityMap' => [
@@ -212,7 +223,7 @@ class EncodingSpec extends ObjectBehavior
             ->duringConvertFromRaw($contentStateRaw);
     }
 
-    public function it_throws_exception_on_invalid_raw_4()
+    public function it_throws_exception_on_invalid_raw_if_block_text_is_number()
     {
         $contentStateRaw = [
             'blocks' => [
@@ -230,7 +241,7 @@ class EncodingSpec extends ObjectBehavior
             ->duringConvertFromRaw($contentStateRaw);
     }
 
-    public function it_throws_exception_on_invalid_raw_5()
+    public function it_throws_exception_on_invalid_raw_if_block_type_is_empty_string()
     {
         $contentStateRaw = [
             'blocks' => [
@@ -248,7 +259,7 @@ class EncodingSpec extends ObjectBehavior
             ->duringConvertFromRaw($contentStateRaw);
     }
 
-    public function it_throws_exception_on_invalid_raw_6()
+    public function it_throws_exception_on_invalid_raw_if_inline_style_range_has_no_style_property()
     {
         $contentStateRaw = [
             'blocks' => [
@@ -272,7 +283,7 @@ class EncodingSpec extends ObjectBehavior
             ->duringConvertFromRaw($contentStateRaw);
     }
 
-    public function it_throws_exception_on_invalid_raw_7()
+    public function it_throws_exception_on_invalid_raw_if_inline_style_range_has_length_zero()
     {
         $contentStateRaw = [
             'blocks' => [
@@ -296,7 +307,7 @@ class EncodingSpec extends ObjectBehavior
             ->duringConvertFromRaw($contentStateRaw);
     }
 
-    public function it_throws_exception_on_invalid_raw_8()
+    public function it_throws_exception_on_invalid_raw_if_inline_style_range_has_offset_sub_zero()
     {
         $contentStateRaw = [
             'blocks' => [
@@ -320,7 +331,7 @@ class EncodingSpec extends ObjectBehavior
             ->duringConvertFromRaw($contentStateRaw);
     }
 
-    public function it_throws_exception_on_invalid_raw_9()
+    public function it_throws_exception_on_invalid_raw_if_entity_range_has_key_of_type_string()
     {
         $contentStateRaw = [
             'blocks' => [
@@ -338,13 +349,19 @@ class EncodingSpec extends ObjectBehavior
                     ],
                 ],
             ],
+            'entityMap' => [
+                1 => [
+                    'type' => 'LINK',
+                    'mutability' => 'MUTABLE',
+                    'data' => [],
+                ],
+            ],
         ];
-
         $this::shouldThrow(InvalidRawException::class)
             ->duringConvertFromRaw($contentStateRaw);
     }
 
-    public function it_throws_exception_on_invalid_raw_10()
+    public function it_throws_exception_on_invalid_raw_if_entity_range_has_key_without_entity_map_counterpart()
     {
         $contentStateRaw = [
             'blocks' => [
@@ -357,9 +374,16 @@ class EncodingSpec extends ObjectBehavior
                         [
                             'offset' => 0,
                             'length' => 1,
-                            'key' => 1, // <---
+                            'key' => 2, // <---
                         ],
                     ],
+                ],
+            ],
+            'entityMap' => [
+                1 => [
+                    'type' => 'LINK',
+                    'mutability' => 'MUTABLE',
+                    'data' => [],
                 ],
             ],
         ];
