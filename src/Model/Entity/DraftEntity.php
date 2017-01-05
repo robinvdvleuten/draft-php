@@ -22,12 +22,6 @@ class DraftEntity
     const MUTABILITY_IMMUTABLE = 'IMMUTABLE';
     const MUTABILITY_SEGMENTED = 'SEGMENTED';
 
-    const VALID_MUTABILITY = [
-        self::MUTABILITY_MUTABLE,
-        self::MUTABILITY_IMMUTABLE,
-        self::MUTABILITY_SEGMENTED
-    ];
-
     /**
      * @var string
      */
@@ -54,7 +48,7 @@ class DraftEntity
      */
     public function __construct($type, $mutability, $data = null)
     {
-        if (!in_array($mutability, self::VALID_MUTABILITY)) {
+        if (!in_array($mutability, [self::MUTABILITY_IMMUTABLE, self::MUTABILITY_MUTABLE, self::MUTABILITY_SEGMENTED])) {
             throw new DraftException('Invalid mutability for entity.');
         }
 
