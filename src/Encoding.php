@@ -38,6 +38,7 @@ class Encoding
         $raw['entityMap'] = $entityMap;
 
         $raw['blocks'] = array_map(function(ContentBlock $contentBlock) {
+            $charList = $contentBlock->getCharacterList();
             $inlineStyleRanges = [];
             $entityRanges = [];
 
@@ -46,6 +47,9 @@ class Encoding
                 $allStyles = array_unique(array_merge($allStyles, $characterMetadata->getStyle()));
             }*/
 
+            /**
+             * Create an unique array of all styles
+             */
             $allStyles = array_reduce(
                 array_map(
                     function(CharacterMetadata $characterMetadata) {
@@ -61,8 +65,6 @@ class Encoding
                 },
                 []
             );
-
-            $charList = $contentBlock->getCharacterList();
 
             /**
              * Create inlineStyleRanges from CharacterMetadata[] for all styles
@@ -112,6 +114,10 @@ class Encoding
                 $inlineStyleRanges = array_merge($inlineStyleRanges, $currentStyleRanges);
             }
 
+            /**
+             * Create entityRanges from CharacterMetadata[] for all styles
+             */
+
             reset($charList);
             do {
                 $char = current($charList);
@@ -138,6 +144,9 @@ class Encoding
                 $entityRanges[] = $range;
             } while (next($charList) !== false);
 
+            /**
+             * Build final raw data structure
+             */
             return [
                 'key' => $contentBlock->getKey(),
                 'type' => $contentBlock->getType(),
