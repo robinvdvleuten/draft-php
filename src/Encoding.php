@@ -41,44 +41,78 @@ class Encoding
             $inlineStyleRanges = [];
             $entityRanges = [];
 
-            $allStyles = [];
+            /*$allStyles = [];
             foreach ($contentBlock->getCharacterList() as $characterMetadata) {
                 $allStyles = array_unique(array_merge($allStyles, $characterMetadata->getStyle()));
-            }
+            }*/
+
+            $allStyles = array_reduce(
+                array_map(
+                    function(CharacterMetadata $characterMetadata) {
+                        return $characterMetadata->getStyle();
+                    },
+                    $contentBlock->getCharacterList()
+                ),
+                function($allStyles, array $styles) {
+                    foreach ($styles as $style) {
+                        $allStyles[$style] = $style;
+                    }
+                    return $allStyles;
+                },
+                []
+            );
 
             $charList = $contentBlock->getCharacterList();
 
+            /**
+             * Create inlineStyleRanges from CharacterMetadata[] for all styles
+             */
             foreach ($allStyles as $style) {
                 $currentStyleRanges = [];
 
                 reset($charList);
+                $currentRange = null;
+                $lastCharacterHadCurrentStyle = false;
+                $lastIndex = count($charList) - 1;
                 do {
                     $char = current($charList);
                     $hasStyle = in_array($style, $char->getStyle());
 
-                    if ($hasStyle === false) continue;
+                    /** range begins */
+                    if ($hasStyle === true && $lastCharacterHadCurrentStyle === false) {
+                        $currentRange = [
+                            'offset' => key($charList),
+                            'length' => null,
+                            'style' => $style,
+                        ];
+                    }
 
-                    $styleRange = [
-                        'offset' => key($charList),
-                        'length' => null,
-                        'style' => $style,
-                    ];
+                    /** range ends */
+                    if ($hasStyle === false && $lastCharacterHadCurrentStyle === true) {
+                        $currentRange['length'] = key($charList) - $currentRange['offset'];
+                        $currentStyleRanges[] = $currentRange;
+                        $currentRange = null;
+                    }
 
-                    $styleLength = 0;
-                    do {
-                        $char = current($charList);
-                        $hasStyle = in_array($style, $char->getStyle());
-                        if ($hasStyle === false) break;
-                        $styleLength++;
-                    } while (next($charList) !== false);
+                    /** early finalize range when last character reached */
+                    if ($hasStyle === true && $lastIndex === key($charList)) {
+                        $currentRange['length'] = key($charList) - $currentRange['offset'] + 1;
+                        $currentStyleRanges[] = $currentRange;
+                        $currentRange = null;
+                    }
 
-                    $styleRange['length'] = $styleLength;
-                    $currentStyleRanges[] = $styleRange;
+                    if ($hasStyle) {
+                        $lastCharacterHadCurrentStyle = true;
+                    } else {
+                        $lastCharacterHadCurrentStyle = false;
+                    }
+
                 } while (next($charList) !== false);
 
                 $inlineStyleRanges = array_merge($inlineStyleRanges, $currentStyleRanges);
             }
 
+            reset($charList);
             do {
                 $char = current($charList);
                 if ($char === false) continue;
@@ -231,7 +265,7 @@ class Encoding
         }, $inlineStyles, array_keys($inlineStyles));
     }
 
-    private static function validateRange($ranges)
+    private static function assertRange($ranges)
     {
         if (!isset($ranges['offset']) || !is_numeric($ranges['offset']) || $ranges['offset'] < 0) {
             throw new InvalidRawException('Range offset must be an integer greater or equal 0.');
@@ -255,7 +289,7 @@ class Encoding
 
         if ($ranges) {
             foreach ($ranges as $range) {
-                self::validateRange($range);
+                self::assertRange($range);
 
                 $cursor = strlen(substr($text, 0, $range['offset']));
                 $end = $cursor + strlen(substr($text, $range['offset'], $range['length']));
@@ -283,7 +317,7 @@ class Encoding
 
         if ($ranges) {
             foreach ($ranges as $range) {
-                self::validateRange($range);
+                self::assertRange($range);
 
                 if (!isset($range['style']) || !is_string($range['style']) || strlen($range['style']) < 1) {
                     throw new InvalidRawException('Range style must be a not empty string.');
