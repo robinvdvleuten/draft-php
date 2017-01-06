@@ -400,6 +400,7 @@ class EncodingSpec extends ObjectBehavior
         $contentState = $this::convertFromRaw($rawState);
 
         $contentState->getBlocksAsArray()[0]->getCharacterList()->shouldHaveCount(3);
+        $contentState->getBlocksAsArray()[0]->getText()->shouldReturn('aà👐');
     }
 
     public function it_converts_serialized_state_to_content_state()
