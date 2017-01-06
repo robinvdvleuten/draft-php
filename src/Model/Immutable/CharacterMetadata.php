@@ -66,4 +66,14 @@ class CharacterMetadata
     {
         $this->entity = $entity;
     }
+
+    /**
+     * @param $style
+     *
+     * @return bool
+     */
+    public function hasStyle($style)
+    {
+        return in_array($style, $this->style);
+    }
 }
