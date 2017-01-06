@@ -141,6 +141,70 @@ class ContentBlock
     }
 
     /**
+     * @param $filterFn (value: CharacterMetadata) : boolean
+     * @param $callback (start: number, end: number) : void
+     */
+    public function findEntityRanges($filterFn, $callback)
+    {
+        $charList = $this->getCharacterList();
+        reset($charList);
+        do {
+            $char = current($charList);
+            $entity = $char->getEntity();
+
+            if ($char === false || $entity === null) {
+                continue;
+            }
+
+            $startOffset = key($charList);
+            $endOffset = $startOffset;
+
+            do {
+                $char = current($charList);
+                $skip = $filterFn($char);
+                if ($skip === true) break;
+                $endOffset++;
+            } while (next($charList) !== false);
+
+            if ($startOffset === $endOffset) continue;
+
+            $callback($startOffset, $endOffset);
+        } while (next($charList) !== false);
+    }
+
+    /**
+     * @param $filterFn (value: CharacterMetadata) : boolean
+     * @param $callback (start: number, end: number) : void
+     */
+    public function findStyleRanges($filterFn, $callback)
+    {
+        $charList = $this->getCharacterList();
+        reset($charList);
+        do {
+            $char = current($charList);
+            $style = $char->getStyle();
+
+            if ($char === false || count($style) > 0) {
+                continue;
+            }
+
+            $startOffset = key($charList);
+            $endOffset = $startOffset;
+
+            do {
+                $char = current($charList);
+                $skip = $filterFn($char);
+                if ($skip === true) break;
+                $endOffset++;
+            } while (next($charList) !== false);
+
+            if ($startOffset === $endOffset) continue;
+
+            $callback($startOffset, $endOffset);
+        } while (next($charList) !== false);
+    }
+
+    /**
      * @param $offset
      *
      * @return null|string
