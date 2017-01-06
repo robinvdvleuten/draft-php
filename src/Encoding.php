@@ -173,7 +173,7 @@ class Encoding
 
         if (isset($rawState['entityMap']) && is_array($rawState['entityMap'])) {
             foreach ($rawState['entityMap'] as $storageKey => $encodedEntity) {
-                if (!isset($encodedEntity['type']) || !is_string($encodedEntity['type']) || strlen($encodedEntity['type']) < 1) {
+                if (!isset($encodedEntity['type']) || !is_string($encodedEntity['type']) || mb_strlen($encodedEntity['type']) < 1) {
                     throw new InvalidRawException('Entity type must be a string');
                 }
 
@@ -206,13 +206,13 @@ class Encoding
             $inlineStyleRanges = [];
             $entityRanges = [];
 
-            if (isset($block['key']) && is_string($block['key']) && strlen($block['type']) > 0) {
+            if (isset($block['key']) && is_string($block['key']) && mb_strlen($block['type']) > 0) {
                 $key = $block['key'];
             } else {
                 $key = Keys::generateRandomKey();
             }
 
-            if (isset($block['type']) && is_string($block['type']) && strlen($block['type']) > 0) {
+            if (isset($block['type']) && is_string($block['type']) && mb_strlen($block['type']) > 0) {
                 $type = $block['type'];
             } else {
                 throw new InvalidRawException('Content block type must be a string.');
@@ -298,15 +298,14 @@ class Encoding
      */
     public static function decodeEntityRanges($text, array $ranges = null)
     {
-        // @TODO Make sure that strlen respects characters like emoji.
-        $entities = array_fill(0, strlen($text), null);
+        $entities = array_fill(0, mb_strlen($text), null);
 
         if ($ranges) {
             foreach ($ranges as $range) {
                 self::assertRange($range);
 
-                $cursor = strlen(substr($text, 0, $range['offset']));
-                $end = $cursor + strlen(substr($text, $range['offset'], $range['length']));
+                $cursor = mb_strlen(mb_substr($text, 0, $range['offset']));
+                $end = $cursor + mb_strlen(mb_substr($text, $range['offset'], $range['length']));
 
                 while ($cursor < $end) {
                     $entities[$cursor] = $range['key'];
@@ -327,18 +326,18 @@ class Encoding
      */
     public static function decodeInlineStyleRanges($text, array $ranges = null)
     {
-        $styles = array_fill(0, strlen($text), []);
+        $styles = array_fill(0, mb_strlen($text), []);
 
         if ($ranges) {
             foreach ($ranges as $range) {
                 self::assertRange($range);
 
-                if (!isset($range['style']) || !is_string($range['style']) || strlen($range['style']) < 1) {
+                if (!isset($range['style']) || !is_string($range['style']) || mb_strlen($range['style']) < 1) {
                     throw new InvalidRawException('Range style must be a not empty string.');
                 }
 
-                $cursor = strlen(substr($text, 0, $range['offset']));
-                $end = $cursor + strlen(substr($text, $range['offset'], $range['length']));
+                $cursor = mb_strlen(mb_substr($text, 0, $range['offset']));
+                $end = $cursor + mb_strlen(mb_substr($text, $range['offset'], $range['length']));
 
                 while ($cursor < $end) {
                     $styles[$cursor][] = $range['style'];
