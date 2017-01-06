@@ -139,4 +139,30 @@ class ContentBlock
         $depth = intval($depth);
         $this->depth = $depth < 0 ? 0 : $depth;
     }
+
+    /**
+     * @param $offset
+     *
+     * @return null|string
+     */
+    public function getEntityAt($offset)
+    {
+        if (!isset($this->characterList[$offset])) {
+            return null;
+        }
+        return $this->characterList[$offset]->getEntity();
+    }
+
+    /**
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getInlineStyleAt($offset)
+    {
+        if (!isset($this->characterList[$offset])) {
+            return [];
+        }
+        return $this->characterList[$offset]->getStyle();
+    }
 }
