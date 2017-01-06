@@ -392,6 +392,16 @@ class EncodingSpec extends ObjectBehavior
             ->duringConvertFromRaw($contentStateRaw);
     }
 
+    public function it_convert_raw_to_content_state_and_recognizes_multi_byte_strings()
+    {
+        $rawState = json_decode('{"entityMap":{},"blocks":[{"key":"33nh8","text":"aà👐","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[]}]}', true);
+
+        /** @var ContentState $contentState */
+        $contentState = $this::convertFromRaw($rawState);
+
+        $contentState->getBlocksAsArray()[0]->getCharacterList()->shouldHaveCount(3);
+    }
+
     public function it_converts_serialized_state_to_content_state()
     {
         $rawState = json_decode('{"entityMap":{},"blocks":[{"key":"33nh8","text":"a","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[]}]}', true);
