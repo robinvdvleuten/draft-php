@@ -161,8 +161,9 @@ class ContentBlock
 
             do {
                 $char = current($charList);
+                $entity = $char->getEntity();
                 $skip = $filterFn($char);
-                if ($skip === true) break;
+                if ($entity === null || $skip === true) break;
                 $endOffset++;
             } while (next($charList) !== false);
 
@@ -184,7 +185,7 @@ class ContentBlock
             $char = current($charList);
             $style = $char->getStyle();
 
-            if ($char === false || count($style) > 0) {
+            if ($char === false || count($style) < 1) {
                 continue;
             }
 
@@ -193,8 +194,9 @@ class ContentBlock
 
             do {
                 $char = current($charList);
+                $style = $char->getStyle();
                 $skip = $filterFn($char);
-                if ($skip === true) break;
+                if (count($style) < 1 || $skip === true) break;
                 $endOffset++;
             } while (next($charList) !== false);
 
