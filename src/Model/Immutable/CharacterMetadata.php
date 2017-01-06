@@ -76,4 +76,26 @@ class CharacterMetadata
     {
         return in_array($style, $this->style);
     }
+
+    /**
+     * @param $style
+     */
+    public function applyStyle($style)
+    {
+        if (is_string($style)) {
+            $style = [$style];
+        }
+        $this->style = array_unique($this->style, $style);
+    }
+
+    /**
+     * @param $style
+     */
+    public function removeStyle($style)
+    {
+        if (is_string($style)) {
+            $style = [$style];
+        }
+        $this->style = array_diff($this->style, $style);
+    }
 }
