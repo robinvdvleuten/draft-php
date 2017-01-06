@@ -157,17 +157,15 @@ class ContentBlock
             }
 
             $startOffset = key($charList);
-            $endOffset = $startOffset;
+            $endOffset = $startOffset - 1;
 
             do {
                 $char = current($charList);
                 $entity = $char->getEntity();
-                $skip = $filterFn($char);
+                $skip = !$filterFn($char);
                 if ($entity === null || $skip === true) break;
                 $endOffset++;
             } while (next($charList) !== false);
-
-            if ($startOffset === $endOffset) continue;
 
             $callback($startOffset, $endOffset);
         } while (next($charList) !== false);
@@ -190,17 +188,15 @@ class ContentBlock
             }
 
             $startOffset = key($charList);
-            $endOffset = $startOffset;
+            $endOffset = $startOffset - 1;
 
             do {
                 $char = current($charList);
                 $style = $char->getStyle();
-                $skip = $filterFn($char);
+                $skip = !$filterFn($char);
                 if (count($style) < 1 || $skip === true) break;
                 $endOffset++;
             } while (next($charList) !== false);
-
-            if ($startOffset === $endOffset) continue;
 
             $callback($startOffset, $endOffset);
         } while (next($charList) !== false);
