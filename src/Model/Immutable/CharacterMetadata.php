@@ -70,7 +70,7 @@ class CharacterMetadata
     /**
      * @param $style
      *
-     * @return bool
+     * @return string bool
      */
     public function hasStyle($style)
     {
@@ -78,7 +78,7 @@ class CharacterMetadata
     }
 
     /**
-     * @param $style
+     * @param string|array $style
      */
     public function applyStyle($style)
     {
@@ -89,7 +89,7 @@ class CharacterMetadata
     }
 
     /**
-     * @param $style
+     * @param string|array $style
      */
     public function removeStyle($style)
     {
