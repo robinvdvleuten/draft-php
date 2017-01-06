@@ -62,7 +62,7 @@ class Validator
         $maxLineCount = $validatorConfig->getMaxLineCount();
 
         if ($maxCharacterCount !== null) {
-            if (strlen($contentState->getPlainText()) > $maxCharacterCount) {
+            if (mb_strlen($contentState->getPlainText()) > $maxCharacterCount) {
                 throw new InvalidContentStateException('The content contains more character than allowed.');
             }
         }
