@@ -11,6 +11,7 @@
 
 namespace Draft\Model\Immutable;
 
+use Draft\Model\Entity\DraftEntity;
 use Draft\Util\Keys;
 
 /**
@@ -21,7 +22,17 @@ class ContentState
     /**
      * @var ContentBlock[]
      */
-    private $blockMap;
+    private $blockMap = [];
+
+    /**
+     * @var DraftEntity[]
+     */
+    private $entityMap = [];
+
+    /**
+     * @var int
+     */
+    private $entityMapCurrentKey = 0;
 
     /**
      * @var SelectionState
@@ -54,13 +65,11 @@ class ContentState
      */
     public static function createFromBlockArray(array $blocks)
     {
-        $blockMap = array_combine(array_map(function (ContentBlock $block) {
-            return $block->getKey();
-        }, $blocks), $blocks);
+        $contentState = new self();
 
-        $selectionState = SelectionState::createEmpty(current($blockMap)->getKey());
+        $contentState->setBlockMap($blocks);
 
-        return new self($blockMap, $selectionState, $selectionState);
+        return $contentState;
     }
 
     /**
@@ -94,6 +103,18 @@ class ContentState
     public function getBlockMap()
     {
         return $this->blockMap;
+    }
+
+    /**
+     * @param ContentBlock[] $blocks
+     */
+    public function setBlockMap(array $blocks)
+    {
+        $blockMap = array_combine(array_map(function (ContentBlock $block) {
+            return $block->getKey();
+        }, $blocks), $blocks);
+
+        $this->blockMap = $blockMap;
     }
 
     /**
@@ -149,6 +170,81 @@ class ContentState
     }
 
     /**
+     * @param string $key
+     *
+     * @return string|null
+     */
+    public function getKeyBefore($key)
+    {
+        return $this->getRelativeBlock($key, 'prev');
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return string|null
+     */
+    public function getKeyAfter($key)
+    {
+        return $this->getRelativeBlock($key, 'next');
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return ContentBlock|null
+     */
+    public function getBlockBefore($key)
+    {
+        return $this->getRelativeBlock($key, 'prev', true);
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return ContentBlock|null
+     */
+    public function getBlockAfter($key)
+    {
+        return $this->getRelativeBlock($key, 'next', true);
+    }
+
+    /**
+     * @param string $key
+     * @param string $relative
+     * @param bool $returnValue
+     *
+     * @return ContentBlock|mixed|null|string
+     */
+    private function getRelativeBlock($key, $relative, $returnValue = null)
+    {
+        $returnValue = $returnValue === null ? false : $returnValue;
+        $map = $this->blockMap;
+        reset($map);
+
+        do {
+            if ($key === key($map)) {
+                if ($relative === 'prev') {
+                    prev($map);
+                } else if ($relative === 'next') {
+                    next($map);
+                }
+                if ($key = key($map)) {
+                    if ($returnValue === true) {
+                        return $map[$key];
+                    } else {
+                        return $key;
+                    }
+                } else {
+                    return null;
+                }
+            }
+        } while ($next = next($map) !== false);
+
+        return null;
+    }
+
+    /**
      * @param string $delimiter
      *
      * @return string
@@ -168,5 +264,91 @@ class ContentState
         return (bool) array_filter($this->blockMap, function (ContentBlock $block) {
             return strlen($block->getText()) > 0;
         });
+    }
+
+    /**
+     * @param DraftEntity $entity
+     *
+     * @return string
+     */
+    public function addEntity(DraftEntity $entity)
+    {
+        $key = (string) ++$this->entityMapCurrentKey;
+        $this->entityMap[$key] = $entity;
+        return $key;
+    }
+
+    /**
+     * @param $type
+     * @param $mutability
+     * @param array|null $data
+     *
+     * @return string
+     */
+    public function createEntity($type, $mutability, array $data = null)
+    {
+        return $this->addEntity(new DraftEntity($type, $mutability, $data));
+    }
+
+    /**
+     * @param $key
+     * @param array $newData
+     */
+    public function replaceEntityData($key, array $newData)
+    {
+        $currentEntity = $this->getEntity($key);
+        $newEntity = new DraftEntity($currentEntity->getType(), $currentEntity->getMutability(), $newData);
+        $this->entityMap[$key] = $newEntity;
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return DraftEntity|null
+     */
+    public function getEntity($key)
+    {
+        return isset($this->entityMap[$key]) ? $this->entityMap[$key] : null;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLastCreatedEntityKey()
+    {
+        return $this->entityMapCurrentKey;
+    }
+
+    /**
+     * @return DraftEntity[]
+     */
+    public function getEntityMap()
+    {
+        return $this->entityMap;
+    }
+
+    /**
+     * @param DraftEntity[] $entityMap
+     */
+    public function setEntityMap(array $entityMap)
+    {
+        $this->entityMap = $entityMap;
+    }
+
+    /**
+     * @param $key
+     * @param DraftEntity $entity
+     */
+    public function __setEntity($key, DraftEntity $entity)
+    {
+        $this->entityMap[$key] = $entity;
+    }
+
+    /**
+     * @param $key
+     */
+    public function __removeEntity($key)
+    {
+        unset($this->entityMap[$key]);
     }
 }

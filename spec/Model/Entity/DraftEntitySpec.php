@@ -39,28 +39,4 @@ class DraftEntitySpec extends ObjectBehavior
         $this->getMutability()->shouldReturn('MUTABLE');
         $this->getData()->shouldReturn($data);
     }
-
-    public function it_creates_a_new_draft_entity_instance()
-    {
-        $this->beConstructedWith('LINK', 'MUTABLE');
-
-        $key = $this::create('LINK', 'MUTABLE');
-        $key->shouldBeString();
-
-        $instance = $this::get($key);
-
-        $instance->shouldBeAnInstanceOf('Draft\Model\Entity\DraftEntity');
-        $instance->getType()->shouldReturn('LINK');
-        $instance->getMutability()->shouldReturn('MUTABLE');
-    }
-
-    public function it_adds_a_draft_entity_instance()
-    {
-        $this->beConstructedWith('LINK', 'MUTABLE');
-
-        $key = $this::add($this);
-        $key->shouldBeString();
-
-        $this::get($key)->shouldReturn($this);
-    }
 }

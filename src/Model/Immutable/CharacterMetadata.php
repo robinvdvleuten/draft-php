@@ -19,15 +19,15 @@ class CharacterMetadata
     private $style;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $entity;
 
     /**
      * Constructor.
      *
-     * @param array  $style
-     * @param string $entity
+     * @param array $style
+     * @param string|null $entity
      */
     public function __construct(array $style = [], $entity = null)
     {
@@ -44,10 +44,58 @@ class CharacterMetadata
     }
 
     /**
-     * @return string
+     * @param array $style
+     */
+    public function setStyle(array $style)
+    {
+        $this->style = $style;
+    }
+
+    /**
+     * @return null|string
      */
     public function getEntity()
     {
         return $this->entity;
+    }
+
+    /**
+     * @param null|string $entity
+     */
+    public function setEntity($entity)
+    {
+        $this->entity = $entity;
+    }
+
+    /**
+     * @param $style
+     *
+     * @return string bool
+     */
+    public function hasStyle($style)
+    {
+        return in_array($style, $this->style);
+    }
+
+    /**
+     * @param string|array $style
+     */
+    public function applyStyle($style)
+    {
+        if (is_string($style)) {
+            $style = [$style];
+        }
+        $this->style = array_unique($this->style, $style);
+    }
+
+    /**
+     * @param string|array $style
+     */
+    public function removeStyle($style)
+    {
+        if (is_string($style)) {
+            $style = [$style];
+        }
+        $this->style = array_diff($this->style, $style);
     }
 }

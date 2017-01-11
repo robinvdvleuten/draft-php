@@ -11,26 +11,16 @@
 
 namespace Draft\Model\Entity;
 
+use Draft\Exception\DraftException;
+
 /**
  * @author Robin van der Vleuten <robin@webstronauts.co>
  */
 class DraftEntity
 {
     const MUTABILITY_MUTABLE = 'MUTABLE';
-
     const MUTABILITY_IMMUTABLE = 'IMMUTABLE';
-
     const MUTABILITY_SEGMENTED = 'SEGMENTED';
-
-    /**
-     * @var int
-     */
-    private static $instanceKey = 0;
-
-    /**
-     * @var array
-     */
-    private static $instances = [];
 
     /**
      * @var string
@@ -48,39 +38,23 @@ class DraftEntity
     private $data;
 
     /**
-     * Constructor.
+     * DraftEntity constructor.
      *
-     * @param string $type
-     * @param string $mutability
-     * @param mixed  $data
+     * @param $type
+     * @param $mutability
+     * @param null $data
+     *
+     * @throws DraftException
      */
     public function __construct($type, $mutability, $data = null)
     {
+        if (!in_array($mutability, [self::MUTABILITY_IMMUTABLE, self::MUTABILITY_MUTABLE, self::MUTABILITY_SEGMENTED])) {
+            throw new DraftException('Invalid mutability for entity.');
+        }
+
         $this->type = $type;
         $this->mutability = $mutability;
         $this->data = $data;
-    }
-
-    public static function create($type, $mutability, $data = null)
-    {
-        return self::add(new self($type, $mutability, $data));
-    }
-
-    public static function add(DraftEntity $instance)
-    {
-        $key = (string) ++self::$instanceKey;
-        self::$instances[$key] = $instance;
-
-        return $key;
-    }
-
-    public static function get($key)
-    {
-        if (!isset(self::$instances[$key])) {
-            throw new \RuntimeException('Unknown DraftEntity key.');
-        }
-
-        return self::$instances[$key];
     }
 
     /**
