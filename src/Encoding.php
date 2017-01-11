@@ -37,7 +37,7 @@ class Encoding
         }
         $raw['entityMap'] = $entityMap;
 
-        $raw['blocks'] = array_map(function(ContentBlock $contentBlock) {
+        $raw['blocks'] = array_map(function (ContentBlock $contentBlock) {
             $charList = $contentBlock->getCharacterList();
             $inlineStyleRanges = [];
             $entityRanges = [];
@@ -48,25 +48,26 @@ class Encoding
             }*/
 
             /**
-             * Create an unique array of all styles
+             * Create an unique array of all styles.
              */
             $allStyles = array_reduce(
                 array_map(
-                    function(CharacterMetadata $characterMetadata) {
+                    function (CharacterMetadata $characterMetadata) {
                         return $characterMetadata->getStyle();
                     },
                     $contentBlock->getCharacterList()
                 ),
-                function($allStyles, array $styles) {
+                function ($allStyles, array $styles) {
                     foreach ($styles as $style) {
                         $allStyles[$style] = $style;
                     }
+
                     return $allStyles;
                 },
                 []
             );
 
-            /**
+            /*
              * Create inlineStyleRanges from CharacterMetadata[] for all styles
              */
             foreach ($allStyles as $style) {
@@ -80,7 +81,7 @@ class Encoding
                     $char = current($charList);
                     $hasStyle = in_array($style, $char->getStyle());
 
-                    /** range begins */
+                    /* range begins */
                     if ($hasStyle === true && $lastCharacterHadCurrentStyle === false) {
                         $currentRange = [
                             'offset' => key($charList),
@@ -89,14 +90,14 @@ class Encoding
                         ];
                     }
 
-                    /** range ends */
+                    /* range ends */
                     if ($hasStyle === false && $lastCharacterHadCurrentStyle === true) {
                         $currentRange['length'] = key($charList) - $currentRange['offset'];
                         $currentStyleRanges[] = $currentRange;
                         $currentRange = null;
                     }
 
-                    /** early finalize range when last character reached */
+                    /* early finalize range when last character reached */
                     if ($hasStyle === true && $lastIndex === key($charList)) {
                         $currentRange['length'] = key($charList) - $currentRange['offset'] + 1;
                         $currentStyleRanges[] = $currentRange;
@@ -108,24 +109,27 @@ class Encoding
                     } else {
                         $lastCharacterHadCurrentStyle = false;
                     }
-
                 } while (next($charList) !== false);
 
                 $inlineStyleRanges = array_merge($inlineStyleRanges, $currentStyleRanges);
             }
 
-            /**
+            /*
              * Create entityRanges from CharacterMetadata[] for all styles
              */
 
             reset($charList);
             do {
                 $char = current($charList);
-                if ($char === false) continue;
+                if ($char === false) {
+                    continue;
+                }
 
                 $entity = $char->getEntity();
 
-                if ($entity === null) continue;
+                if ($entity === null) {
+                    continue;
+                }
 
                 $range = [
                     'offset' => key($charList),
@@ -136,15 +140,17 @@ class Encoding
                 $length = 0;
                 do {
                     $char = current($charList);
-                    if (($char->getEntity() === $entity) === false) break;
-                    $length++;
+                    if (($char->getEntity() === $entity) === false) {
+                        break;
+                    }
+                    ++$length;
                 } while (next($charList) !== false);
 
                 $range['length'] = $length;
                 $entityRanges[] = $range;
             } while (next($charList) !== false);
 
-            /**
+            /*
              * Build final raw data structure
              */
             return [
@@ -164,6 +170,7 @@ class Encoding
      * @param array $rawState
      *
      * @return ContentState
+     *
      * @throws InvalidRawException
      */
     public static function convertFromRaw(array $rawState)
@@ -247,6 +254,7 @@ class Encoding
                 if (!isset($fromStorageToLocal[$entityRange['key']])) {
                     throw new InvalidRawException('Entity range key reference to entity map is invalid.');
                 }
+
                 return isset($fromStorageToLocal[$entityRange['key']]);
             }));
 
@@ -294,6 +302,7 @@ class Encoding
      * @param array|null $ranges
      *
      * @return array
+     *
      * @throws InvalidRawException
      */
     public static function decodeEntityRanges($text, array $ranges = null)
@@ -322,6 +331,7 @@ class Encoding
      * @param array|null $ranges
      *
      * @return array
+     *
      * @throws InvalidRawException
      */
     public static function decodeInlineStyleRanges($text, array $ranges = null)

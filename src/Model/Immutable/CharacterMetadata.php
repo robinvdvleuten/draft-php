@@ -26,7 +26,7 @@ class CharacterMetadata
     /**
      * Constructor.
      *
-     * @param array $style
+     * @param array       $style
      * @param string|null $entity
      */
     public function __construct(array $style = [], $entity = null)

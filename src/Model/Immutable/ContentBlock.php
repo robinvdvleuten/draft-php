@@ -44,11 +44,11 @@ class ContentBlock
     /**
      * Constructor.
      *
-     * @param string $key
-     * @param string $type
-     * @param string $text
+     * @param string              $key
+     * @param string              $type
+     * @param string              $text
      * @param CharacterMetadata[] $characterList
-     * @param int    $depth
+     * @param int                 $depth
      */
     public function __construct($key, $type, $text = '', array $characterList = [], $depth = 0)
     {
@@ -163,8 +163,10 @@ class ContentBlock
                 $char = current($charList);
                 $entity = $char->getEntity();
                 $skip = !$filterFn($char);
-                if ($entity === null || $skip === true) break;
-                $endOffset++;
+                if ($entity === null || $skip === true) {
+                    break;
+                }
+                ++$endOffset;
             } while (next($charList) !== false);
 
             $callback($startOffset, $endOffset);
@@ -194,8 +196,10 @@ class ContentBlock
                 $char = current($charList);
                 $style = $char->getStyle();
                 $skip = !$filterFn($char);
-                if (count($style) < 1 || $skip === true) break;
-                $endOffset++;
+                if (count($style) < 1 || $skip === true) {
+                    break;
+                }
+                ++$endOffset;
             } while (next($charList) !== false);
 
             $callback($startOffset, $endOffset);
@@ -210,8 +214,9 @@ class ContentBlock
     public function getEntityAt($offset)
     {
         if (!isset($this->characterList[$offset])) {
-            return null;
+            return;
         }
+
         return $this->characterList[$offset]->getEntity();
     }
 
@@ -225,6 +230,7 @@ class ContentBlock
         if (!isset($this->characterList[$offset])) {
             return [];
         }
+
         return $this->characterList[$offset]->getStyle();
     }
 }
