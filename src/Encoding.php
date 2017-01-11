@@ -334,25 +334,23 @@ class Encoding
      *
      * @throws InvalidRawException
      */
-    public static function decodeInlineStyleRanges($text, array $ranges = null)
+    public static function decodeInlineStyleRanges($text, array $ranges = [])
     {
         $styles = array_fill(0, mb_strlen($text), []);
 
-        if ($ranges) {
-            foreach ($ranges as $range) {
-                self::assertRange($range);
+        foreach ($ranges as $range) {
+            self::assertRange($range);
 
-                if (!isset($range['style']) || !is_string($range['style']) || mb_strlen($range['style']) < 1) {
-                    throw new InvalidRawException('Range style must be a not empty string.');
-                }
+            if (!isset($range['style']) || !is_string($range['style']) || mb_strlen($range['style']) < 1) {
+                throw new InvalidRawException('Range style must be a not empty string.');
+            }
 
-                $cursor = mb_strlen(mb_substr($text, 0, $range['offset']));
-                $end = $cursor + mb_strlen(mb_substr($text, $range['offset'], $range['length']));
+            $cursor = mb_strlen(mb_substr($text, 0, $range['offset']));
+            $end = $cursor + mb_strlen(mb_substr($text, $range['offset'], $range['length']));
 
-                while ($cursor < $end) {
-                    $styles[$cursor][] = $range['style'];
-                    ++$cursor;
-                }
+            while ($cursor < $end) {
+                $styles[$cursor][] = $range['style'];
+                ++$cursor;
             }
         }
 
