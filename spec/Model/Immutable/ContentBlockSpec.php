@@ -128,6 +128,6 @@ class ContentBlockSpec extends ObjectBehavior
 
         $this->__insertText($this->getLength(), ' “MÄ!€”😄');
 
-        dump($this->getWrappedObject());
+        //dump($this->getWrappedObject());
     }
 }
