@@ -751,7 +751,9 @@ class ContentBlock
             $charDebug[] = '['.str_pad($strToDecFormatted($characterString), 15, ' ').']';
 
             if (isset($charList[$i])) {
-                $charDebug[] = 'E: ' . str_pad(($charList[$i]->getEntity() ?? 'null'), 4);
+                $entity = $charList[$i]->getEntity();
+
+                $charDebug[] = 'E: ' . str_pad(($entity !== null ? $entity : 'null'), 4);
                 $charDebug[] = 'S: ' . implode(',', $charList[$i]->getStyle());
             }
 
