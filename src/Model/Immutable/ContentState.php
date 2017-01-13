@@ -35,27 +35,15 @@ class ContentState
     private $entityMapCurrentKey = 0;
 
     /**
-     * @var SelectionState
-     */
-    private $selectionBefore;
-
-    /**
-     * @var SelectionState
-     */
-    private $selectionAfter;
-
-    /**
      * Constructor.
      *
-     * @param ContentBlock[] $blockMap
-     * @param SelectionState $selectionBefore
-     * @param SelectionState $selectionAfter
+     * @param ContentBlock[]|array $blockMap
+     * @param array $entityMap
      */
-    public function __construct(array $blockMap = [], SelectionState $selectionBefore = null, SelectionState $selectionAfter = null)
+    public function __construct(array $blockMap = [], array $entityMap = [])
     {
         $this->blockMap = $blockMap;
-        $this->selectionBefore = $selectionBefore;
-        $this->selectionAfter = $selectionAfter;
+        $this->entityMap = $entityMap;
     }
 
     /**
@@ -123,22 +111,6 @@ class ContentState
     public function getBlocksAsArray()
     {
         return array_values($this->blockMap);
-    }
-
-    /**
-     * @return SelectionState
-     */
-    public function getSelectionBefore()
-    {
-        return $this->selectionBefore;
-    }
-
-    /**
-     * @return SelectionState
-     */
-    public function getSelectionAfter()
-    {
-        return $this->selectionAfter;
     }
 
     /**
