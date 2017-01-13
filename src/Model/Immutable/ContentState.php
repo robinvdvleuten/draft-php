@@ -339,7 +339,7 @@ class ContentState
      * @param $key
      * @param DraftEntity $entity
      */
-    public function __setEntity($key, DraftEntity $entity)
+    public function setEntity($key, DraftEntity $entity)
     {
         $this->entityMap[$key] = $entity;
     }
@@ -347,7 +347,7 @@ class ContentState
     /**
      * @param $key
      */
-    public function __removeEntity($key)
+    public function removeEntity($key)
     {
         unset($this->entityMap[$key]);
     }
