@@ -329,12 +329,16 @@ class ContentState
     /**
      * @param string $key
      * @param ContentBlock $contentBlock
-     * @param bool $before
+     * @param bool $before false
      *
      * @throws DraftException
      */
-    public function insertContentBlock($key, ContentBlock $contentBlock, bool $before = false)
+    public function insertContentBlock($key, ContentBlock $contentBlock, bool $before = null)
     {
+        if ($before === null) {
+            $before = false;
+        }
+
         $offset = array_search($key, array_keys($this->blockMap));
         if ($offset === false) {
             throw new DraftException('Content block with given key not found.');
