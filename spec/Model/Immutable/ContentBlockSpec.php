@@ -13,7 +13,6 @@ namespace spec\Draft\Model\Immutable;
 
 use Draft\Model\Immutable\CharacterMetadata;
 use PhpSpec\ObjectBehavior;
-use Symfony\Component\Debug\Debug;
 
 /**
  * @author Robin van der Vleuten <robin@webstronauts.co>
