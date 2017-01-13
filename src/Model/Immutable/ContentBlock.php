@@ -380,7 +380,7 @@ class ContentBlock
      * https://github.com/facebook/draft-js/blob/master/src/model/modifier/getRangesForDraftEntity.js (find ranges by entity)
      * https://github.com/facebook/draft-js/blob/master/src/model/transaction/removeEntitiesAtEdges.js#L73
      *
-     * @param $array
+     * @param array $array
      * @param callable $areEqualFn
      * @param callable $filterFn
      * @param callable $foundFn
@@ -443,6 +443,8 @@ class ContentBlock
      * @param array $inlineStyle
      * @param null $entityKey
      *
+     * @throws DraftException
+     *
      * @return void
      */
     public function __replaceText(
@@ -452,23 +454,14 @@ class ContentBlock
         array $inlineStyle = [],
         $entityKey = null
     ) {
+        $this->assertOffsets($startOffset, $endOffset);
+
         $text = $this->getText();
-        $textLength = $this->getLength();
 
         $newCharList = $this->getCharacterList();
 
         $insertTextLength = mb_strlen($insertText);
         $replacementTextLength = $endOffset - $startOffset;
-
-        if ($startOffset > $textLength || $endOffset > $textLength || $replacementTextLength < 0) {
-            /*dump('REPLACE TEXT ERROR', [
-                'startOffset' => $startOffset,
-                'endOfffset' => $endOffset,
-                'repText' => $replacementTextLength,
-                'textLength' => $textLength
-            ]);*/
-            return;
-        }
 
         $newChars = array_map(function() use ($inlineStyle, $entityKey) {
             return new CharacterMetadata($inlineStyle, $entityKey);
@@ -509,6 +502,8 @@ class ContentBlock
      * @param array $inlineStyle
      * @param string|null $entityKey
      *
+     * @throws DraftException
+     *
      * @return void
      */
     public function __insertText(
@@ -534,12 +529,16 @@ class ContentBlock
      * @param int $startOffset
      * @param int $endOffset
      *
+     * @throws DraftException
+     *
      * @return void
      */
     public function __removeText(
         int $startOffset,
         int $endOffset
     ) {
+        $this->assertOffsets($startOffset, $endOffset);
+
         $text = $this->getText();
         $newCharList = $this->getCharacterList();
 
@@ -774,5 +773,37 @@ class ContentBlock
         }
 
         return $debugData;
+    }
+
+    /**
+     * @param $startOffset
+     * @param $endOffset
+     *
+     * @throws DraftException
+     */
+    private function assertOffsets($startOffset, $endOffset)
+    {
+        $textLength = $this->getLength();
+
+        if ($startOffset < 0 || $startOffset > $textLength) {
+            throw new DraftException(
+                "Cannot insert/replace/remove text in content block because startOffset must be a number " .
+                "between 0 and text length ${textLength}. Given startOffset: ${startOffset}."
+            );
+        }
+
+        if ($endOffset < 0 || $endOffset > $textLength) {
+            throw new DraftException(
+                "Cannot insert/replace/remove text in content block because endOffset must be a number " .
+                "between 0 and text length ${textLength}. Given endOffset: ${endOffset}."
+            );
+        }
+
+        if ($startOffset > $endOffset) {
+            throw new DraftException(
+                "Cannot insert/replace/remove text in content block because endOffset must be a number " .
+                "greater than startOffset. Given startOffset: ${startOffset} / endOffset ${endOffset}."
+            );
+        }
     }
 }
