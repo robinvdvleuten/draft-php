@@ -70,7 +70,6 @@ class ContentState
     public static function createFromText($text, $delimiter = '/\r\n?|\n/')
     {
         $blocks = [];
-        $characterMetadata = new CharacterMetadata();
 
         foreach (preg_split($delimiter, $text) as $string) {
             $blockKey = Keys::generateRandomKey();
@@ -79,7 +78,7 @@ class ContentState
                 $blockKey,
                 'unstyled',
                 $string,
-                array_fill(0, count($blocks), $characterMetadata)
+                array_fill(0, mb_strlen($string), new CharacterMetadata())
             );
         }
 

@@ -35,14 +35,15 @@ class ContentBlockSpec extends ObjectBehavior
 
     public function it_is_initializable_with_custom_values()
     {
-        $this->beConstructedWith('123', 'unstyled', 'Hello, Block!', ['a'], 2);
+        $charList = array_fill(0, 13, new CharacterMetadata());
+        $this->beConstructedWith('123', 'unstyled', 'Hello, Block!', $charList, 2);
 
         $this->shouldHaveType('Draft\Model\Immutable\ContentBlock');
 
         $this->getKey()->shouldReturn('123');
         $this->getType()->shouldReturn('unstyled');
         $this->getText()->shouldReturn('Hello, Block!');
-        $this->getCharacterList()->shouldReturn(['a']);
+        $this->getCharacterList()->shouldReturn($charList);
         $this->getDepth()->shouldReturn(2);
     }
 

@@ -11,6 +11,7 @@
 
 namespace Draft\Model\Immutable;
 
+use Draft\Exception\DraftException;
 use Draft\Helper;
 
 /**
@@ -58,16 +59,25 @@ class ContentBlock
     private $depth;
 
     /**
-     * Constructor.
+     * The $characterList array size must equal the $text length
      *
      * @param string $key
      * @param string $type
      * @param string $text
      * @param CharacterMetadata[] $characterList
-     * @param int    $depth
+     * @param int $depth
+     *
+     * @throws DraftException
      */
     public function __construct($key, $type, $text = '', array $characterList = [], $depth = 0)
     {
+        if (($a = count($characterList)) !== ($b = mb_strlen($text))) {
+            throw new DraftException(
+                "Cannot create ContentBlock with char list size ${a} and text length ${b}. " .
+                "It must be identical."
+            );
+        }
+
         $this->key = $key;
         $this->type = $type;
         $this->text = $text;
