@@ -11,6 +11,7 @@
 
 namespace Draft\Model\Immutable;
 
+use Draft\Exception\DraftException;
 use Draft\Model\Entity\DraftEntity;
 use Draft\Util\Keys;
 
@@ -323,5 +324,47 @@ class ContentState
     public function removeEntity($key)
     {
         unset($this->entityMap[$key]);
+    }
+
+    /**
+     * @param string $key
+     * @param ContentBlock $contentBlock
+     * @param bool $before
+     *
+     * @throws DraftException
+     */
+    public function insertContentBlock($key, ContentBlock $contentBlock, bool $before = false)
+    {
+        $offset = array_search($key, array_keys($this->blockMap));
+        if ($offset === false) {
+            throw new DraftException('Content block with given key not found.');
+        }
+        if ($before === false) {
+            $offset++;
+        }
+        $this->blockMap = array_merge
+        (
+            array_slice($this->blockMap, 0, $offset, true),
+            [$contentBlock->getKey() => $contentBlock],
+            array_slice($this->blockMap, $offset, null, true)
+        );
+    }
+
+    /**
+     * @param string $key
+     *
+     * @throws DraftException
+     */
+    public function removeContentBlock($key)
+    {
+        $offset = array_search($key, array_keys($this->blockMap));
+        if ($offset === false) {
+            throw new DraftException('Content block with given key not found.');
+        }
+        $this->blockMap = array_merge
+        (
+            array_slice($this->blockMap, 0, $offset, true),
+            array_slice($this->blockMap, $offset + 1, null, true)
+        );
     }
 }

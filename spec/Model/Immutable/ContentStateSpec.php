@@ -11,6 +11,7 @@
 
 namespace spec\Draft\Model\Immutable;
 
+use Draft\Exception\DraftException;
 use Draft\Model\Immutable\ContentBlock;
 use PhpSpec\ObjectBehavior;
 
@@ -127,5 +128,57 @@ class ContentStateSpec extends ObjectBehavior
         $this->beConstructedWith([]);
 
         $this->shouldNotHaveText();
+    }
+
+    public function it_can_insert_and_remove_blocks()
+    {
+        $this->beConstructedThrough('createFromBlockArray', [
+            [
+                new ContentBlock('A', 'unstyled'),
+                new ContentBlock('B', 'unstyled'),
+                new ContentBlock('C', 'unstyled'),
+                new ContentBlock('D', 'unstyled'),
+                new ContentBlock('E', 'unstyled'),
+                new ContentBlock('F', 'unstyled'),
+            ]
+        ]);
+
+        // Insert X after C
+        $this->insertContentBlock('C', new ContentBlock('X', 'unstyled'));
+        $this->getBlockBefore('X')->getKey()->shouldReturn('C');
+        $this->getBlockAfter('X')->getKey()->shouldReturn('D');
+
+        // Insert Y after F (last block)
+        $this->insertContentBlock('F', new ContentBlock('Y', 'unstyled'));
+        $this->getBlockBefore('Y')->getKey()->shouldReturn('F');
+        $this->getBlockAfter('Y')->shouldReturn(null);
+
+        // Insert Z BEFORE A (first block)
+        $this->insertContentBlock('A', new ContentBlock('Z', 'unstyled'), true);
+        $this->getBlockBefore('Z')->shouldReturn(null);
+        $this->getBlockAfter('Z')->getKey()->shouldReturn('A');
+
+        // Remove X (middle block)
+        $this->removeContentBlock('X');
+        $this->getBlockAfter('C')->getKey()->shouldReturn('D');
+
+        // Remove Y (last block)
+        $this->removeContentBlock('Y');
+        $this->getBlockAfter('F')->shouldReturn(null);
+
+        // Remove Z (first block)
+        $this->removeContentBlock('Z');
+        $this->getBlockBefore('A')->shouldReturn(null);
+
+        // Try to insert after not existing block key
+        $this->shouldThrow(DraftException::class)->duringInsertContentBlock(
+            '?',
+            new ContentBlock('T', 'unstyled')
+        );
+
+        // Try to remove not existing block key
+        $this->shouldThrow(DraftException::class)->duringRemoveContentBlock(
+            '?'
+        );
     }
 }
