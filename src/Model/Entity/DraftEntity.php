@@ -38,7 +38,7 @@ class DraftEntity
     private $data;
 
     /**
-     * DraftEntity constructor.
+     * Constructor.
      *
      * @param $type
      * @param $mutability
