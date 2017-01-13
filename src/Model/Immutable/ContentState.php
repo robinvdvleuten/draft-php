@@ -184,7 +184,7 @@ class ContentState
     /**
      * @param string $key
      * @param string $relative
-     * @param bool $returnValue
+     * @param bool   $returnValue
      *
      * @return ContentBlock|mixed|null|string
      */
@@ -198,7 +198,7 @@ class ContentState
             if ($key === key($map)) {
                 if ($relative === 'prev') {
                     prev($map);
-                } else if ($relative === 'next') {
+                } elseif ($relative === 'next') {
                     next($map);
                 }
                 if ($key = key($map)) {
@@ -208,12 +208,12 @@ class ContentState
                         return $key;
                     }
                 } else {
-                    return null;
+                    return;
                 }
             }
         } while ($next = next($map) !== false);
 
-        return null;
+        return;
     }
 
     /**
@@ -247,6 +247,7 @@ class ContentState
     {
         $key = (string) ++$this->entityMapCurrentKey;
         $this->entityMap[$key] = $entity;
+
         return $key;
     }
 
