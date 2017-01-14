@@ -2,8 +2,7 @@
 namespace Draft;
 
 /**
- * Class Helper
- * @package Draft
+ * Class Helper.
  */
 class Helper
 {

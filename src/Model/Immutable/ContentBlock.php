@@ -74,7 +74,7 @@ class ContentBlock
         if (($a = count($characterList)) !== ($b = mb_strlen($text))) {
             throw new DraftException(
                 "Cannot create ContentBlock with char list size ${a} and text length ${b}. ".
-                "It must be identical."
+                'It must be identical.'
             );
         }
 
@@ -296,8 +296,6 @@ class ContentBlock
      *
      * @param $filterFn (value: CharacterMetadata) : boolean
      * @param $callback (start: number, end: number) : void
-     *
-     * @return void
      */
     public function findStyleRanges($filterFn, $callback)
     {
@@ -332,8 +330,6 @@ class ContentBlock
      *
      * @param $filterFn (value: CharacterMetadata) : boolean
      * @param $callback (start: number, end: number) : void
-     *
-     * @return void
      */
     public function findEntityRanges($filterFn, $callback)
     {
@@ -377,8 +373,6 @@ class ContentBlock
      * @param callable $areEqualFn
      * @param callable $filterFn
      * @param callable $foundFn
-     *
-     * @return void
      */
     private function findRanges($array, callable $areEqualFn, callable $filterFn, callable $foundFn)
     {
@@ -437,8 +431,6 @@ class ContentBlock
      * @param null   $entityKey
      *
      * @throws DraftException
-     *
-     * @return void
      */
     public function __replaceText(
         $startOffset,
@@ -499,8 +491,6 @@ class ContentBlock
      * @param string|null $entityKey
      *
      * @throws DraftException
-     *
-     * @return void
      */
     public function __insertText(
         $offset,
@@ -529,8 +519,6 @@ class ContentBlock
      * @param int $endOffset
      *
      * @throws DraftException
-     *
-     * @return void
      */
     public function __removeText(
         $startOffset,
