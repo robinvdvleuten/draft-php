@@ -689,7 +689,7 @@ class ContentBlock
 
         // reuse in the other functions
         $getHexByteArray = function ($str) {
-            return str_split(unpack("H*", $str)[1], 2);
+            return str_split(unpack('H*', $str)[1], 2);
         };
 
         // get array of bytes represented as hex values
