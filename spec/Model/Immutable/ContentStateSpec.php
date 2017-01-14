@@ -140,7 +140,7 @@ class ContentStateSpec extends ObjectBehavior
                 new ContentBlock('D', 'unstyled'),
                 new ContentBlock('E', 'unstyled'),
                 new ContentBlock('F', 'unstyled'),
-            ]
+            ],
         ]);
 
         // Insert X after C

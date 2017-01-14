@@ -59,13 +59,13 @@ class ContentBlock
     private $depth;
 
     /**
-     * The $characterList array size must equal the $text length
+     * The $characterList array size must equal the $text length.
      *
-     * @param string $key
-     * @param string $type
-     * @param string $text
+     * @param string              $key
+     * @param string              $type
+     * @param string              $text
      * @param CharacterMetadata[] $characterList
-     * @param int $depth
+     * @param int                 $depth
      *
      * @throws DraftException
      */
@@ -73,7 +73,7 @@ class ContentBlock
     {
         if (($a = count($characterList)) !== ($b = mb_strlen($text))) {
             throw new DraftException(
-                "Cannot create ContentBlock with char list size ${a} and text length ${b}. " .
+                "Cannot create ContentBlock with char list size ${a} and text length ${b}. ".
                 "It must be identical."
             );
         }
@@ -104,8 +104,6 @@ class ContentBlock
      * @Counterpart None
      *
      * @param string $key
-     *
-     * @return void
      */
     public function setKey($key)
     {
@@ -134,8 +132,6 @@ class ContentBlock
      * Replaces Modifier::setBlockType (https://facebook.github.io/draft-js/docs/api-reference-modifier.html#setblocktype)
      *
      * @param string $type
-     *
-     * @return void
      */
     public function setType($type)
     {
@@ -183,8 +179,6 @@ class ContentBlock
      * @deprecated
      *
      * @param CharacterMetadata[] $characterList
-     *
-     * @return void
      */
     public function setCharacterList(array $characterList)
     {
@@ -211,7 +205,8 @@ class ContentBlock
      *
      * @return int
      */
-    public function getLength() {
+    public function getLength()
+    {
         return mb_strlen($this->getText());
     }
 
@@ -234,8 +229,6 @@ class ContentBlock
      * @Counterpart None
      *
      * @param int $depth Must equal or greater than zero integer
-     *
-     * @return void
      */
     public function setDepth($depth)
     {
@@ -280,7 +273,7 @@ class ContentBlock
     public function getEntityAt($offset)
     {
         if (!isset($this->characterList[$offset])) {
-            return null;
+            return;
         }
         return $this->characterList[$offset]->getEntity();
     }
@@ -310,7 +303,7 @@ class ContentBlock
     {
         $this->findRanges(
             $this->getCharacterList(),
-            function(CharacterMetadata $a, CharacterMetadata $b) {
+            function (CharacterMetadata $a, CharacterMetadata $b) {
                 // Two array have same values (order not relevant)
                 // Alternative to: Immutable.List === Immutable.List
                 return $a->haveEqualStyle($b);
@@ -346,7 +339,7 @@ class ContentBlock
     {
         $this->findRanges(
             $this->getCharacterList(),
-            function(CharacterMetadata $a, CharacterMetadata $b) {
+            function (CharacterMetadata $a, CharacterMetadata $b) {
                 return $a->getEntity() === $b->getEntity();
             },
             $filterFn,
@@ -358,7 +351,7 @@ class ContentBlock
      * Implements the same algorithm to find ranges like draft.js
      * This is used by ContentBlock methods findStyleRanges and findEntityRanges but can be used
      * for other purposes with other parameters too (ex: find leafs for rendering)
-     * (This function is however not exposed by the draft.js package directly)
+     * (This function is however not exposed by the draft.js package directly).
      *
      * @Counterpart draft-js/src/model/immutable/findRangesImmutable.js
      * @CounterpartURL https://github.com/facebook/draft-js/blob/master/src/model/immutable/findRangesImmutable.js
@@ -380,7 +373,7 @@ class ContentBlock
      * https://github.com/facebook/draft-js/blob/master/src/model/modifier/getRangesForDraftEntity.js (find ranges by entity)
      * https://github.com/facebook/draft-js/blob/master/src/model/transaction/removeEntitiesAtEdges.js#L73
      *
-     * @param array $array
+     * @param array    $array
      * @param callable $areEqualFn
      * @param callable $filterFn
      * @param callable $foundFn
@@ -397,16 +390,16 @@ class ContentBlock
 
         // array_reduce function don't pass the current index as argument like Immutable.List.reduce
         // any many other languages does - this is a workaround to get the key by an object
-        $getIndexByValue = function($obj) use ($array) {
+        $getIndexByValue = function ($obj) use ($array) {
             foreach ($array as $index => $item) {
                 if ($item === $obj) {
                     return $index;
                 }
             }
-            return null;
+            return;
         };
 
-        array_reduce($array, function($value, $nextValue) use (&$cursor, $areEqualFn, $filterFn, $foundFn, $getIndexByValue) {
+        array_reduce($array, function ($value, $nextValue) use (&$cursor, $areEqualFn, $filterFn, $foundFn, $getIndexByValue) {
             $currentIndex = $getIndexByValue($nextValue);
             if (!$areEqualFn($value, $nextValue)) {
                 if ($filterFn($value)) {
@@ -424,7 +417,7 @@ class ContentBlock
     }
 
     /**
-     * Replace the text with the given text on ContentBlock level
+     * Replace the text with the given text on ContentBlock level.
      *
      * @Counterpart None
      *
@@ -437,11 +430,11 @@ class ContentBlock
      * Example: On Facebook, when replacing @abraham lincoln with a mention of Abraham Lincoln,
      * the entire old range is the target to replace and the mention entity should be applied to the inserted string.
      *
-     * @param int $startOffset
-     * @param int $endOffset
+     * @param int    $startOffset
+     * @param int    $endOffset
      * @param string $insertText
-     * @param array $inlineStyle
-     * @param null $entityKey
+     * @param array  $inlineStyle
+     * @param null   $entityKey
      *
      * @throws DraftException
      *
@@ -456,7 +449,7 @@ class ContentBlock
     ) {
         $startOffset = intval($startOffset);
         $endOffset = intval($endOffset);
-        $insertText = (string)$insertText;
+        $insertText = (string) $insertText;
         $this->assertOffsets($startOffset, $endOffset);
 
         $text = $this->getText();
@@ -466,7 +459,7 @@ class ContentBlock
         $insertTextLength = mb_strlen($insertText);
         $replacementTextLength = $endOffset - $startOffset;
 
-        $newChars = array_map(function() use ($inlineStyle, $entityKey) {
+        $newChars = array_map(function () use ($inlineStyle, $entityKey) {
             return new CharacterMetadata($inlineStyle, $entityKey);
         }, array_fill(0, $insertTextLength, null));
 
@@ -489,7 +482,7 @@ class ContentBlock
     }
 
     /**
-     * Insert a text to the given offset
+     * Insert a text to the given offset.
      *
      * @Counterpart None
      *
@@ -500,9 +493,9 @@ class ContentBlock
      * Identical to replaceText, but enforces that the target range is collapsed so that no characters are replaced.
      * This is just for convenience, since text edits are so often insertions rather than replacements.
      *
-     * @param int $offset
-     * @param string $insertText
-     * @param array $inlineStyle
+     * @param int         $offset
+     * @param string      $insertText
+     * @param array       $inlineStyle
      * @param string|null $entityKey
      *
      * @throws DraftException
@@ -516,13 +509,13 @@ class ContentBlock
         $entityKey = null
     ) {
         $offset = intval($offset);
-        $insertText = (string)$insertText;
-        $entityKey = (string)$entityKey;
+        $insertText = (string) $insertText;
+        $entityKey = (string) $entityKey;
         $this->__replaceText($offset, $offset, $insertText, $inlineStyle, $entityKey);
     }
 
     /**
-     * Removes the text from the given range
+     * Removes the text from the given range.
      *
      * @Counterpart None
      *
@@ -559,7 +552,7 @@ class ContentBlock
     }
 
     /**
-     * Removes the entity from the given text range
+     * Removes the entity from the given text range.
      *
      * @Counterpart None
      *
@@ -569,8 +562,8 @@ class ContentBlock
      * Modifier::applyEntity (https://github.com/facebook/draft-js/blob/master/src/model/modifier/DraftModifier.js#L243)
      * Apply an entity to the entire selected range, or remove all entities from the range if entityKey is null.
      *
-     * @param int $start
-     * @param int $length
+     * @param int         $start
+     * @param int         $length
      * @param string|null $entity
      */
     public function __applyEntityToRange(int $start, int $length, string $entity = null)
@@ -586,7 +579,7 @@ class ContentBlock
     }
 
     /**
-     * Adds the given style from the given text range
+     * Adds the given style from the given text range.
      *
      * @Counterpart None
      *
@@ -596,11 +589,9 @@ class ContentBlock
      * Modifier::applyInlineStyle (https://facebook.github.io/draft-js/docs/api-reference-modifier.html#applyinlinestyle)
      * Apply the specified inline style to the entire selected range.
      *
-     * @param int $start
-     * @param int $length
+     * @param int         $start
+     * @param int         $length
      * @param string|null $addStyle
-     *
-     * @return void
      */
     public function __addStyleToRange(int $start, int $length, string $addStyle = null)
     {
@@ -615,7 +606,7 @@ class ContentBlock
     }
 
     /**
-     * Removes the given style from the given text range
+     * Removes the given style from the given text range.
      *
      * @Counterpart None
      *
@@ -623,11 +614,9 @@ class ContentBlock
      * Similar to draft.js Modifier::removeInlineStyle (https://facebook.github.io/draft-js/docs/api-reference-modifier.html#removeinlinestyle)
      * Remove the specified inline style from the entire selected range.
      *
-     * @param int $start
-     * @param int $length
+     * @param int         $start
+     * @param int         $length
      * @param string|null $removeStyle
-     *
-     * @return void
      */
     public function __removeStyleFromRange(int $start, int $length, string $removeStyle = null)
     {
@@ -652,12 +641,13 @@ class ContentBlock
      *
      * @return array
      */
-    public function __getRangesByRegex($pattern) {
-        $pattern = (string)$pattern;
+    public function __getRangesByRegex($pattern)
+    {
+        $pattern = (string) $pattern;
         $ranges = [];
         $text = $this->getText();
 
-        $getRealOffset = function($byteOffset) use ($text) {
+        $getRealOffset = function ($byteOffset) use ($text) {
             return mb_strlen(substr($text, 0, $byteOffset));
         };
 
@@ -665,7 +655,7 @@ class ContentBlock
         $foundAmount = preg_match_all('/'.$pattern.'/mu', $text, $matchCollection, PREG_OFFSET_CAPTURE);
         $matches = $matchCollection[0];
 
-        for ($i = 0; $i < $foundAmount; $i++) {
+        for ($i = 0; $i < $foundAmount; ++$i) {
             $match = $matches[$i];
             $startOffsetMatch = $getRealOffset($match[1]);
             $realMatchLength = mb_strlen($match[0]);
@@ -686,7 +676,7 @@ class ContentBlock
 
     /**
      * Because the debugging of the ContentBlock can be really difficult this magic function helps a lot.
-     * It returns the CharacterMetadata[] mapped to the character in text (MultiByte aware)
+     * It returns the CharacterMetadata[] mapped to the character in text (MultiByte aware).
      *
      * Additionally:
      * - Text
@@ -710,19 +700,19 @@ class ContentBlock
         $iterations = max($charListCount, $textRealLength);
 
         // reuse in the other functions
-        $getHexByteArray = function($str) {
+        $getHexByteArray = function ($str) {
             return str_split(unpack("H*", $str)[1], 2);
         };
 
         // get array of bytes represented as hex values
-        $strToHexFormatted = function($str) use ($getHexByteArray) {
+        $strToHexFormatted = function ($str) use ($getHexByteArray) {
             return implode(' ', $getHexByteArray($str));
         };
 
         // get array of bytes represented as binary values
-        $strToBinFormatted = function($str) use ($getHexByteArray) {
+        $strToBinFormatted = function ($str) use ($getHexByteArray) {
             $hexes = $getHexByteArray($str);
-            $bins = array_map(function($hex) {
+            $bins = array_map(function ($hex) {
                 // pad left bits with 0
                 return str_pad(base_convert($hex, 16, 2), 8, '0', STR_PAD_LEFT);
             }, $hexes);
@@ -730,15 +720,15 @@ class ContentBlock
         };
 
         // get array of bytes represented as decimal values
-        $strToDecFormatted = function($str) use ($getHexByteArray) {
+        $strToDecFormatted = function ($str) use ($getHexByteArray) {
             $hexes = $getHexByteArray($str);
-            $decs = array_map(function($hex) {
+            $decs = array_map(function ($hex) {
                 return base_convert($hex, 16, 10);
             }, $hexes);
             return implode(' ', $decs);
         };
 
-        for ($i = 0; $i < $iterations; $i++) {
+        for ($i = 0; $i < $iterations; ++$i) {
             $characterString = mb_substr($text, $i, 1);
             $bytes = strlen($characterString);
 
@@ -762,8 +752,8 @@ class ContentBlock
             if (isset($charList[$i])) {
                 $entity = $charList[$i]->getEntity();
 
-                $charDebug[] = 'E: ' . str_pad(($entity !== null ? $entity : 'null'), 4);
-                $charDebug[] = 'S: ' . implode(',', $charList[$i]->getStyle());
+                $charDebug[] = 'E: '.str_pad(($entity !== null ? $entity : 'null'), 4);
+                $charDebug[] = 'S: '.implode(',', $charList[$i]->getStyle());
             }
 
             $charsDebugData[str_pad($i, 4, ' ')] = implode(' - ', $charDebug);
@@ -798,21 +788,21 @@ class ContentBlock
 
         if ($startOffset < 0 || $startOffset > $textLength) {
             throw new DraftException(
-                "Cannot insert/replace/remove text in content block because startOffset must be a number " .
+                'Cannot insert/replace/remove text in content block because startOffset must be a number '.
                 "between 0 and text length ${textLength}. Given startOffset: ${startOffset}."
             );
         }
 
         if ($endOffset < 0 || $endOffset > $textLength) {
             throw new DraftException(
-                "Cannot insert/replace/remove text in content block because endOffset must be a number " .
+                'Cannot insert/replace/remove text in content block because endOffset must be a number '.
                 "between 0 and text length ${textLength}. Given endOffset: ${endOffset}."
             );
         }
 
         if ($startOffset > $endOffset) {
             throw new DraftException(
-                "Cannot insert/replace/remove text in content block because endOffset must be a number " .
+                'Cannot insert/replace/remove text in content block because endOffset must be a number '.
                 "greater than startOffset. Given startOffset: ${startOffset} / endOffset ${endOffset}."
             );
         }

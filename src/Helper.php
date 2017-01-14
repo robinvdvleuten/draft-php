@@ -9,8 +9,8 @@ class Helper
 {
     /**
      * @param string $text
-     * @param int $offset
-     * @param int $length
+     * @param int    $offset
+     * @param int    $length
      * @param string $replacement
      *
      * @return string
@@ -23,7 +23,7 @@ class Helper
     ) {
         $offset = intval($offset);
         $length = intval($length);
-        $text = (string)$text;
+        $text = (string) $text;
 
         return mb_substr($text, 0, $offset).$replacement.mb_substr($text, $offset + $length);
     }

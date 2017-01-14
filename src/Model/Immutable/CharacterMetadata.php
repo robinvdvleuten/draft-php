@@ -142,8 +142,6 @@ class CharacterMetadata
      * In draft.js however this is a static method which returns a new immutable CharacterMetadata
      *
      * @param string $style
-     *
-     * @return void
      */
     public function applyStyle($style)
     {
@@ -162,8 +160,6 @@ class CharacterMetadata
      * Remove an inline style from this CharacterMetadata.
      *
      * @param string $style
-     *
-     * @return void
      */
     public function removeStyle($style)
     {
@@ -175,7 +171,7 @@ class CharacterMetadata
 
     /**
      * In draft.js the style property is a OrderedList and can compared directly.
-     * In PHP the style in a plain array (different orders results in a not-equal!)
+     * In PHP the style in a plain array (different orders results in a not-equal!).
      *
      * @Counterpart None (not directly)
      *

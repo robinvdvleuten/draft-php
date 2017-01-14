@@ -97,23 +97,23 @@ class ContentBlockSpec extends ObjectBehavior
         ]);
 
         // Reduce multiple spaces to one
-        foreach ($this->__getRangesByRegex("[ ]{2,}")->getWrappedObject() as $range) {
+        foreach ($this->__getRangesByRegex('[ ]{2,}')->getWrappedObject() as $range) {
             $this->__replaceText($range[0], $range[1], ' ');
         }
 
         // Append a text with 4 spaces at the end
-        $this->__insertText($this->getLength(), "HERE AGAIN A TEXT    ", ['ITALIC'], 6);
+        $this->__insertText($this->getLength(), 'HERE AGAIN A TEXT    ', ['ITALIC'], 6);
 
         // Prepend 3 spaces at the beginning
-        $this->__insertText(0, "   IMPORTANT: ", ['BOLD'], null);
+        $this->__insertText(0, '   IMPORTANT: ', ['BOLD'], null);
 
         // Trim leading spaces by regex
-        foreach ($this->__getRangesByRegex("^[ ]{1,}")->getWrappedObject() as $range) {
+        foreach ($this->__getRangesByRegex('^[ ]{1,}')->getWrappedObject() as $range) {
             $this->__replaceText($range[0], $range[1], '');
         }
 
         // Trim trailing spaces by regex
-        foreach ($this->__getRangesByRegex("[ ]{1,}$")->getWrappedObject() as $range) {
+        foreach ($this->__getRangesByRegex('[ ]{1,}$')->getWrappedObject() as $range) {
             $this->__replaceText($range[0], $range[1], '');
         }
 
