@@ -13,7 +13,6 @@ namespace Draft\Model\Immutable;
 
 use Draft\Exception\DraftException;
 use Draft\Model\Entity\DraftEntity;
-use Draft\Util\Keys;
 
 /**
  * @author Robin van der Vleuten <robin@webstronauts.co>
