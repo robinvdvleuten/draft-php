@@ -13,6 +13,7 @@ namespace Draft\Model\Immutable;
 
 use Draft\Exception\DraftException;
 use Draft\Model\Entity\DraftEntity;
+use Draft\Util\Keys;
 
 /**
  * @author Robin van der Vleuten <robin@webstronauts.co>
@@ -107,10 +108,14 @@ class ContentState
     }
 
     /**
+     * @param string $key
+     *
      * @return ContentBlock
      */
     public function getBlockForKey($key)
     {
+        $key = (string) $key;
+
         foreach ($this->blockMap as $block) {
             if ($block->getKey() === $key) {
                 return $block;
@@ -183,6 +188,8 @@ class ContentState
      */
     private function getRelativeBlock($key, $relative, $returnValue = null)
     {
+        $key = (string) $key;
+
         $returnValue = $returnValue === null ? false : $returnValue;
         $map = $this->blockMap;
         reset($map);
@@ -319,6 +326,8 @@ class ContentState
     }
 
     /**
+     * @Counterpart None
+     *
      * @param string       $relativeBlockKey
      * @param ContentBlock $contentBlock
      * @param bool         $before           false
@@ -345,6 +354,8 @@ class ContentState
     }
 
     /**
+     * @Counterpart None
+     *
      * @param string $key
      *
      * @throws DraftException
@@ -359,5 +370,72 @@ class ContentState
             array_slice($this->blockMap, 0, $offset, true),
             array_slice($this->blockMap, $offset + 1, null, true)
         );
+    }
+
+
+
+    /**
+     * Splits the block at the given offset in two ContentBlock's (above and below block).
+     * - The above block remains the key (the object instance stays the same)
+     * - The offset character belongs to the following block.
+     * - Both blocks remains the type and depth.
+     * - The text and characterList will be splitted.
+     *
+     * @Counterpart None
+     *
+     * @Notes
+     * Similar to draft.js Modifier::splitBlock (https://facebook.github.io/draft-js/docs/api-reference-modifier.html#splitblock)
+     * Split the selected block into two blocks. This should only be used if the selection is collapsed.
+     *
+     * Modifier::splitBlock delegates the split to following transaction:
+     * https://github.com/facebook/draft-js/blob/master/src/model/transaction/splitBlockInContentState.js
+     *
+     * This implementation orientates to this transaction.
+     *
+     * @param string $key
+     * @param int    $offset
+     *
+     * @throws DraftException
+     */
+    public function __splitBlock($key, $offset)
+    {
+        $block = $this->getBlockForKey($key);
+
+        if ($block === null) {
+            throw new DraftException('Cannot split block because ContentBlock was not found with given key.');
+        }
+
+        $offset = intval($offset);
+
+        $originalTextLength = $textLength = $block->getLength();
+
+        if ($offset < 0 || $offset > $originalTextLength) {
+            throw new DraftException(
+                'Cannot split block because offset must be a number '.
+                "between 0 and text length ${originalTextLength}. Given startOffset: ${offset}."
+            );
+        }
+
+        $originalText = $block->getText();
+        $originalCharList = $block->getCharacterList();
+
+        $aboveBlockText = mb_substr($originalText, 0, $offset);
+        $aboveBlockCharList = array_slice($originalCharList, 0, $offset);
+
+        $belowBlockText = mb_substr($originalText, $offset);
+        $belowBlockCharList = array_slice($originalCharList, $offset);
+
+        $belowBlock = new ContentBlock(
+            Keys::generateRandomKey(),
+            $block->getType(),
+            $belowBlockText,
+            $belowBlockCharList,
+            $block->getDepth()
+        );
+
+        $this->insertContentBlock($block->getKey(), $belowBlock);
+
+        $block->setText($aboveBlockText);
+        $block->setCharacterList($aboveBlockCharList);
     }
 }
