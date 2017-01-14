@@ -399,15 +399,15 @@ class ContentState
      */
     public function __splitBlock($key, $offset)
     {
-        $block = $this->getBlockForKey($key);
+        $blockToSplit = $this->getBlockForKey($key);
 
-        if ($block === null) {
+        if ($blockToSplit === null) {
             throw new DraftException('Cannot split block because ContentBlock was not found with given key.');
         }
 
         $offset = intval($offset);
 
-        $originalTextLength = $textLength = $block->getLength();
+        $originalTextLength = $textLength = $blockToSplit->getLength();
 
         if ($offset < 0 || $offset > $originalTextLength) {
             throw new DraftException(
@@ -416,8 +416,8 @@ class ContentState
             );
         }
 
-        $originalText = $block->getText();
-        $originalCharList = $block->getCharacterList();
+        $originalText = $blockToSplit->getText();
+        $originalCharList = $blockToSplit->getCharacterList();
 
         $aboveBlockText = mb_substr($originalText, 0, $offset);
         $aboveBlockCharList = array_slice($originalCharList, 0, $offset);
@@ -427,15 +427,15 @@ class ContentState
 
         $belowBlock = new ContentBlock(
             Keys::generateRandomKey(),
-            $block->getType(),
+            $blockToSplit->getType(),
             $belowBlockText,
             $belowBlockCharList,
-            $block->getDepth()
+            $blockToSplit->getDepth()
         );
 
-        $this->insertContentBlock($block->getKey(), $belowBlock);
+        $this->insertContentBlock($blockToSplit->getKey(), $belowBlock);
 
-        $block->setText($aboveBlockText);
-        $block->setCharacterList($aboveBlockCharList);
+        $blockToSplit->setText($aboveBlockText);
+        $blockToSplit->setCharacterList($aboveBlockCharList);
     }
 }
