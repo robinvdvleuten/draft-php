@@ -13,6 +13,7 @@ namespace Draft\Model\Immutable;
 
 use Draft\Exception\DraftException;
 use Draft\Helper;
+use Draft\Util\Keys;
 
 /**
  * @author Robin van der Vleuten <robin@webstronauts.co>
@@ -83,6 +84,25 @@ class ContentBlock
         $this->text = $text;
         $this->characterList = $characterList;
         $this->setDepth($depth);
+    }
+
+    /**
+     * @param string $text
+     *
+     * @return ContentBlock
+     */
+    public static function createFromText($text)
+    {
+        $text = (string) $text;
+
+        $blockKey = Keys::generateRandomKey();
+
+        return new self(
+            $blockKey,
+            'unstyled',
+            $text,
+            array_fill(0, mb_strlen($text), new CharacterMetadata())
+        );
     }
 
     /**
