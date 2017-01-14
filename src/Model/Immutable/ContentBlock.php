@@ -79,9 +79,18 @@ class ContentBlock
             );
         }
 
-        $this->key = $key;
-        $this->type = $type;
-        $this->text = $text;
+        foreach ($characterList as $characterMetadata) {
+            if (!$characterMetadata instanceof CharacterMetadata) {
+                throw new DraftException(
+                    'Cannot create ContentBlock because characterList must contains only items '.
+                    'of type CharacterMetadata.'
+                );
+            }
+        }
+
+        $this->key = (string) $key;
+        $this->type = (string) $type;
+        $this->text = (string) $text;
         $this->characterList = $characterList;
         $this->setDepth($depth);
     }
