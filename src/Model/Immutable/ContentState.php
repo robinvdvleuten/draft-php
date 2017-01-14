@@ -332,11 +332,9 @@ class ContentState
      *
      * @throws DraftException
      */
-    public function insertContentBlock($key, ContentBlock $contentBlock, bool $before = null)
+    public function insertContentBlock($key, ContentBlock $contentBlock, $before = null)
     {
-        if ($before === null) {
-            $before = false;
-        }
+        $before = boolval($before);
 
         $offset = array_search($key, array_keys($this->blockMap));
         if ($offset === false) {

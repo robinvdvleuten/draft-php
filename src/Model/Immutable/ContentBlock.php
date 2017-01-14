@@ -448,12 +448,15 @@ class ContentBlock
      * @return void
      */
     public function __replaceText(
-        int $startOffset,
-        int $endOffset,
-        string $insertText,
+        $startOffset,
+        $endOffset,
+        $insertText,
         array $inlineStyle = [],
         $entityKey = null
     ) {
+        $startOffset = intval($startOffset);
+        $endOffset = intval($endOffset);
+        $insertText = (string)$insertText;
         $this->assertOffsets($startOffset, $endOffset);
 
         $text = $this->getText();
@@ -507,11 +510,14 @@ class ContentBlock
      * @return void
      */
     public function __insertText(
-        int $offset,
-        string $insertText,
+        $offset,
+        $insertText,
         array $inlineStyle = [],
-        string $entityKey = null
+        $entityKey = null
     ) {
+        $offset = intval($offset);
+        $insertText = (string)$insertText;
+        $entityKey = (string)$entityKey;
         $this->__replaceText($offset, $offset, $insertText, $inlineStyle, $entityKey);
     }
 
@@ -534,9 +540,11 @@ class ContentBlock
      * @return void
      */
     public function __removeText(
-        int $startOffset,
-        int $endOffset
+        $startOffset,
+        $endOffset
     ) {
+        $startOffset = intval($startOffset);
+        $endOffset = intval($endOffset);
         $this->assertOffsets($startOffset, $endOffset);
 
         $text = $this->getText();
@@ -644,7 +652,8 @@ class ContentBlock
      *
      * @return array
      */
-    public function __getRangesByRegex(string $pattern) {
+    public function __getRangesByRegex($pattern) {
+        $pattern = (string)$pattern;
         $ranges = [];
         $text = $this->getText();
 
