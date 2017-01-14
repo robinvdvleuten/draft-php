@@ -328,7 +328,7 @@ class ContentState
     /**
      * @param string       $relativeBlockKey
      * @param ContentBlock $contentBlock
-     * @param bool         $before       false
+     * @param bool         $before           false
      *
      * @throws DraftException
      */
