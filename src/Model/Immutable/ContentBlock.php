@@ -158,7 +158,9 @@ class ContentBlock
      * @Counterpart None
      *
      * @Notes
-     * Replaces Modifier::setBlockType (https://facebook.github.io/draft-js/docs/api-reference-modifier.html#setblocktype)
+     * Have the function as Modifier::setBlockType but on ContentBlock level.
+     * https://github.com/facebook/draft-js/blob/master/src/model/modifier/DraftModifier.js#L206
+     * https://facebook.github.io/draft-js/docs/api-reference-modifier.html#setblocktype
      *
      * @param string $type
      */
