@@ -253,6 +253,7 @@ class ContentBlock
         if (!isset($this->characterList[$offset])) {
             return [];
         }
+
         return $this->characterList[$offset]->getStyle();
     }
 
@@ -275,6 +276,7 @@ class ContentBlock
         if (!isset($this->characterList[$offset])) {
             return;
         }
+
         return $this->characterList[$offset]->getEntity();
     }
 
@@ -390,6 +392,7 @@ class ContentBlock
                     return $index;
                 }
             }
+
             return;
         };
 
@@ -401,6 +404,7 @@ class ContentBlock
                 }
                 $cursor = $currentIndex;
             }
+
             return $nextValue;
         }, $array[0]);
 
@@ -704,6 +708,7 @@ class ContentBlock
                 // pad left bits with 0
                 return str_pad(base_convert($hex, 16, 2), 8, '0', STR_PAD_LEFT);
             }, $hexes);
+
             return implode(' ', $bins);
         };
 
@@ -713,6 +718,7 @@ class ContentBlock
             $decs = array_map(function ($hex) {
                 return base_convert($hex, 16, 10);
             }, $hexes);
+
             return implode(' ', $decs);
         };
 
