@@ -39,7 +39,7 @@ class ContentState
      * Constructor.
      *
      * @param ContentBlock[]|array $blockMap
-     * @param array $entityMap
+     * @param array                $entityMap
      */
     public function __construct(array $blockMap = [], array $entityMap = [])
     {
@@ -326,9 +326,9 @@ class ContentState
     }
 
     /**
-     * @param string $key
+     * @param string       $key
      * @param ContentBlock $contentBlock
-     * @param bool $before false
+     * @param bool         $before       false
      *
      * @throws DraftException
      */
@@ -341,10 +341,9 @@ class ContentState
             throw new DraftException('Content block with given key not found.');
         }
         if ($before === false) {
-            $offset++;
+            ++$offset;
         }
-        $this->blockMap = array_merge
-        (
+        $this->blockMap = array_merge(
             array_slice($this->blockMap, 0, $offset, true),
             [$contentBlock->getKey() => $contentBlock],
             array_slice($this->blockMap, $offset, null, true)
@@ -362,8 +361,7 @@ class ContentState
         if ($offset === false) {
             throw new DraftException('Content block with given key not found.');
         }
-        $this->blockMap = array_merge
-        (
+        $this->blockMap = array_merge(
             array_slice($this->blockMap, 0, $offset, true),
             array_slice($this->blockMap, $offset + 1, null, true)
         );
