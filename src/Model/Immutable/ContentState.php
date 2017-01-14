@@ -372,8 +372,6 @@ class ContentState
         );
     }
 
-
-
     /**
      * Splits the block at the given offset in two ContentBlock's (above and below block).
      * - The above block remains the key (the object instance stays the same)
