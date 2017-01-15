@@ -564,14 +564,30 @@ class ContentBlock
         $this->assertOffsets($startOffset, $endOffset);
 
         $text = $this->getText();
-        $newCharList = $this->getCharacterList();
+        $charList = $this->getCharacterList();
 
-        $length = $endOffset - $startOffset + 1;
-        array_splice($newCharList, $startOffset, $length);
+        $length = $endOffset - $startOffset;
+
+        $newCharList = array_merge(
+            array_slice($charList, 0, $startOffset, true),
+            array_slice($charList, $endOffset, null, true)
+        );
+
+        // Same:
+        // $newCharList = $charList;
+        // array_splice($newCharList, $startOffset, $length);
+
         $newText = Helper::replaceOffsetMultiByte($text, $startOffset, $length, '');
 
         $this->text = $newText;
         $this->characterList = $newCharList;
+
+        // @TODO
+        $length = $this->getLength();
+        $size = count($this->getCharacterList());
+        if ($length !== $size) {
+            throw new DraftException('Remove Text ERROR: Text length: '.$length. ' - characterlist size: '.$size);
+        }
     }
 
     /**
@@ -654,47 +670,58 @@ class ContentBlock
     }
 
     /**
-     * This method returns found ranges with the correct offset (MultiByte charset aware) by the given regex.
-     * Don't use preg_* functions on ->getText() when you need the offset to manipulate the ContentBlock because
-     * the offset returned by this functions is always the byte offset not the character offset!
+     * Do NOT use this method for altering the content block text because the match offsets are outdated
+     * after the first altering!
+     *
+     * This method returns all found ranges with the correct offset (MultiByte charset aware) by the given regex.
      *
      * @Counterpart None
      *
      * @param string $pattern
      *
-     * @return array
+     * @return array [[startOffset, endOffset], ...] or []
      */
     public function __getRangesByRegex($pattern)
     {
         $pattern = (string) $pattern;
-        $ranges = [];
         $text = $this->getText();
 
-        $getRealOffset = function ($byteOffset) use ($text) {
-            return mb_strlen(substr($text, 0, $byteOffset));
-        };
-
         $matchCollection = null;
-        $foundAmount = preg_match_all('/'.$pattern.'/mu', $text, $matchCollection, PREG_OFFSET_CAPTURE);
-        $matches = $matchCollection[0];
 
-        for ($i = 0; $i < $foundAmount; ++$i) {
-            $match = $matches[$i];
-            $startOffsetMatch = $getRealOffset($match[1]);
-            $realMatchLength = mb_strlen($match[0]);
-            $endOffsetMatch = $realMatchLength + $startOffsetMatch;
-
-            /*dump([
-                'pattern' => $pattern,
-                'match' => $match,
-                'realMatchLength' => $realMatchLength,
-                'strlenMatch' => strlen($match[0]),
-            ]);*/
-
-            $ranges[] = [$startOffsetMatch, $endOffsetMatch];
+        if (1 > preg_match_all('/'.$pattern.'/mu', $text, $matchCollection, PREG_OFFSET_CAPTURE)) {
+            return [];
         }
 
-        return $ranges;
+        $matches = $matchCollection[0];
+
+        return array_map(function($match) use ($text) {
+            return Helper::pregOffsetMatchToMultiByteOffsetRange($match, $text);
+        }, $matches);
+    }
+
+    /**
+     * Use this method for example in a loop when you want to alter the content block's text and
+     * the match range itself - by a modifier method (replace text/remove text).
+     * Be sure you don't fall in an infinite loop!
+     *
+     * This method returns the found range with the correct offset (MultiByte charset aware) by the given regex.
+     *
+     * @Counterpart None
+     *
+     * @param $pattern
+     *
+     * @return array|null [startOffset, endOffset] or null
+     */
+    public function __findRangeByRegex($pattern)
+    {
+        $pattern = (string) $pattern;
+        $text = $this->getText();
+
+        if (!preg_match('/'.$pattern.'/mu', $text, $match, PREG_OFFSET_CAPTURE)) {
+            return null;
+        }
+
+        return Helper::pregOffsetMatchToMultiByteOffsetRange($match[0], $text);
     }
 
     /**
