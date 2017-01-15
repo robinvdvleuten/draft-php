@@ -53,18 +53,18 @@ class EncodingSpec extends ObjectBehavior
                 new CharacterMetadata([], 0),                       // 23 e / ENTITY 0
                 new CharacterMetadata([], 0),                       // 24 s / ENTITY 0
                 new CharacterMetadata([], 0),                       // 25 t / ENTITY 0
-                new CharacterMetadata(['BOLD'], null), // 26 . - recognize style in last character
+                new CharacterMetadata(['BOLD'], null),              // 26 . - recognize style in last character
             ], 0),
             new ContentBlock('b', 'atomic', ' ', [
                 new CharacterMetadata([], 1),                       // 25' ' / ENTITY 1
             ], 0),
         ]);
 
-        $contentState->__setEntity(0, new DraftEntity('IMAGE', DraftEntity::MUTABILITY_IMMUTABLE, [
+        $contentState->setEntity(0, new DraftEntity('IMAGE', DraftEntity::MUTABILITY_IMMUTABLE, [
             'src' => 'http://google.de/image.png',
         ]));
 
-        $contentState->__setEntity(1, new DraftEntity('LINK', DraftEntity::MUTABILITY_IMMUTABLE, [
+        $contentState->setEntity(1, new DraftEntity('LINK', DraftEntity::MUTABILITY_IMMUTABLE, [
             'url' => 'http://google.de',
         ]));
 

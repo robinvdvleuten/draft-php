@@ -11,6 +11,7 @@
 
 namespace Draft\Model\Immutable;
 
+use Draft\Exception\DraftException;
 use Draft\Model\Entity\DraftEntity;
 use Draft\Util\Keys;
 
@@ -35,27 +36,15 @@ class ContentState
     private $entityMapCurrentKey = 0;
 
     /**
-     * @var SelectionState
-     */
-    private $selectionBefore;
-
-    /**
-     * @var SelectionState
-     */
-    private $selectionAfter;
-
-    /**
      * Constructor.
      *
-     * @param ContentBlock[] $blockMap
-     * @param SelectionState $selectionBefore
-     * @param SelectionState $selectionAfter
+     * @param ContentBlock[]|array $blockMap
+     * @param array                $entityMap
      */
-    public function __construct(array $blockMap = [], SelectionState $selectionBefore = null, SelectionState $selectionAfter = null)
+    public function __construct(array $blockMap = [], array $entityMap = [])
     {
         $this->blockMap = $blockMap;
-        $this->selectionBefore = $selectionBefore;
-        $this->selectionAfter = $selectionAfter;
+        $this->entityMap = $entityMap;
     }
 
     /**
@@ -81,17 +70,10 @@ class ContentState
     public static function createFromText($text, $delimiter = '/\r\n?|\n/')
     {
         $blocks = [];
-        $characterMetadata = new CharacterMetadata();
 
         foreach (preg_split($delimiter, $text) as $string) {
-            $blockKey = Keys::generateRandomKey();
-
-            $blocks[$blockKey] = new ContentBlock(
-                $blockKey,
-                'unstyled',
-                $string,
-                array_fill(0, count($blocks), $characterMetadata)
-            );
+            $contentBlock = ContentBlock::createFromText($string);
+            $blocks[$contentBlock->getKey()] = $contentBlock;
         }
 
         return self::createFromBlockArray($blocks);
@@ -126,26 +108,14 @@ class ContentState
     }
 
     /**
-     * @return SelectionState
-     */
-    public function getSelectionBefore()
-    {
-        return $this->selectionBefore;
-    }
-
-    /**
-     * @return SelectionState
-     */
-    public function getSelectionAfter()
-    {
-        return $this->selectionAfter;
-    }
-
-    /**
+     * @param string $key
+     *
      * @return ContentBlock
      */
     public function getBlockForKey($key)
     {
+        $key = (string) $key;
+
         foreach ($this->blockMap as $block) {
             if ($block->getKey() === $key) {
                 return $block;
@@ -218,6 +188,8 @@ class ContentState
      */
     private function getRelativeBlock($key, $relative, $returnValue = null)
     {
+        $key = (string) $key;
+
         $returnValue = $returnValue === null ? false : $returnValue;
         $map = $this->blockMap;
         reset($map);
@@ -340,7 +312,7 @@ class ContentState
      * @param $key
      * @param DraftEntity $entity
      */
-    public function __setEntity($key, DraftEntity $entity)
+    public function setEntity($key, DraftEntity $entity)
     {
         $this->entityMap[$key] = $entity;
     }
@@ -348,8 +320,120 @@ class ContentState
     /**
      * @param $key
      */
-    public function __removeEntity($key)
+    public function removeEntity($key)
     {
         unset($this->entityMap[$key]);
+    }
+
+    /**
+     * @Counterpart None
+     *
+     * @param string       $relativeBlockKey
+     * @param ContentBlock $contentBlock
+     * @param bool         $before           false
+     *
+     * @throws DraftException
+     */
+    public function insertContentBlock($relativeBlockKey, ContentBlock $contentBlock, $before = null)
+    {
+        $relativeBlockKey = (string) $relativeBlockKey;
+        $before = boolval($before);
+
+        $offset = array_search($relativeBlockKey, array_keys($this->blockMap));
+        if ($offset === false) {
+            throw new DraftException('Content block with given key not found.');
+        }
+        if ($before === false) {
+            ++$offset;
+        }
+        $this->blockMap = array_merge(
+            array_slice($this->blockMap, 0, $offset, true),
+            [$contentBlock->getKey() => $contentBlock],
+            array_slice($this->blockMap, $offset, null, true)
+        );
+    }
+
+    /**
+     * @Counterpart None
+     *
+     * @param string $key
+     *
+     * @throws DraftException
+     */
+    public function removeContentBlock($key)
+    {
+        $offset = array_search($key, array_keys($this->blockMap));
+        if ($offset === false) {
+            throw new DraftException('Content block with given key not found.');
+        }
+        $this->blockMap = array_merge(
+            array_slice($this->blockMap, 0, $offset, true),
+            array_slice($this->blockMap, $offset + 1, null, true)
+        );
+    }
+
+    /**
+     * Splits the block at the given offset in two ContentBlock's (above and below block).
+     * - The above block remains the key (the object instance stays the same)
+     * - The offset character belongs to the following block.
+     * - Both blocks remains the type and depth.
+     * - The text and characterList will be splitted.
+     *
+     * @Counterpart None
+     *
+     * @Notes
+     * Similar to draft.js Modifier::splitBlock (https://facebook.github.io/draft-js/docs/api-reference-modifier.html#splitblock)
+     * Split the selected block into two blocks. This should only be used if the selection is collapsed.
+     *
+     * Modifier::splitBlock delegates the split to following transaction:
+     * https://github.com/facebook/draft-js/blob/master/src/model/transaction/splitBlockInContentState.js
+     *
+     * This implementation orientates to this transaction.
+     *
+     * @param string $key
+     * @param int    $offset
+     *
+     * @throws DraftException
+     */
+    public function __splitBlock($key, $offset)
+    {
+        $blockToSplit = $this->getBlockForKey($key);
+
+        if ($blockToSplit === null) {
+            throw new DraftException('Cannot split block because ContentBlock was not found with given key.');
+        }
+
+        $offset = intval($offset);
+
+        $originalTextLength = $textLength = $blockToSplit->getLength();
+
+        if ($offset < 0 || $offset > $originalTextLength) {
+            throw new DraftException(
+                'Cannot split block because offset must be a number '.
+                "between 0 and text length ${originalTextLength}. Given startOffset: ${offset}."
+            );
+        }
+
+        $originalText = $blockToSplit->getText();
+        $originalCharList = $blockToSplit->getCharacterList();
+
+        $aboveBlockText = mb_substr($originalText, 0, $offset);
+        $aboveBlockCharList = array_slice($originalCharList, 0, $offset);
+
+        $belowBlockText = mb_substr($originalText, $offset);
+        $belowBlockCharList = array_slice($originalCharList, $offset);
+
+        $belowBlock = new ContentBlock(
+            Keys::generateRandomKey(),
+            $blockToSplit->getType(),
+            $belowBlockText,
+            $belowBlockCharList,
+            $blockToSplit->getDepth()
+        );
+
+        $this->insertContentBlock($blockToSplit->getKey(), $belowBlock);
+
+        $blockToSplit->setText($aboveBlockText);
+        $blockToSplit->setCharacterList($aboveBlockCharList);
     }
 }

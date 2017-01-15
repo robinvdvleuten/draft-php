@@ -15,7 +15,8 @@
   "require-dev": {
     "phpspec/phpspec": "^2.0",
     "friendsofphp/php-cs-fixer": "2.0.0-alpha",
-    "sllh/php-cs-fixer-styleci-bridge": "^2.1"
+    "sllh/php-cs-fixer-styleci-bridge": "^2.1",
+    "symfony/var-dumper": "^3.2"
   },
   "autoload": {
     "psr-4": {
